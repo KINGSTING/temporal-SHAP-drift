@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.3.23)  4 JUN 2026 12:34
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.3.23)  4 JUN 2026 19:43
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -103,7 +103,9 @@ LaTeX Font Info:    Font shape `OT1/ptm/bx/it' in size <24> not available
 \IEEEPARstartletwidth=\dimen163
 \c@IEEEbiography=\count267
 \@IEEEtranrubishbin=\box52
-) (/usr/share/texlive/texmf-dist/tex/latex/cite/cite.sty
+)
+** ATTENTION: Overriding command lockouts (line 2).
+(/usr/share/texlive/texmf-dist/tex/latex/cite/cite.sty
 LaTeX Info: Redefining \cite on input line 302.
 LaTeX Info: Redefining \nocite on input line 332.
 Package: cite 2015/02/27  v 5.5
@@ -246,185 +248,82 @@ Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
 \@thisruleclass=\count286
 \@lastruleclass=\count287
 \@thisrulewidth=\dimen187
-) (/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
-Package: tabularx 2023/07/08 v2.11c `tabularx' package (DPC)
- (/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty
-Package: array 2023/10/16 v2.5g Tabular extension package (FMi)
-\col@sep=\dimen188
-\ar@mcellbox=\box55
-\extrarowheight=\dimen189
-\NC@list=\toks24
-\extratabsurround=\skip56
-\backup@length=\skip57
-\ar@cellbox=\box56
-)
-\TX@col@width=\dimen190
-\TX@old@table=\dimen191
-\TX@old@col=\dimen192
-\TX@target=\dimen193
-\TX@delta=\dimen194
-\TX@cols=\count288
-\TX@ftn=\toks25
-) (/usr/share/texlive/texmf-dist/tex/latex/tools/verbatim.sty
-Package: verbatim 2023-11-06 v1.5v LaTeX2e package for verbatim enhancements
-\every@verbatim=\toks26
-\verbatim@line=\toks27
-\verbatim@in@stream=\read2
-) (/usr/share/texlive/texmf-dist/tex/latex/url/url.sty
-\Urlmuskip=\muskip17
-Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
 ) (/usr/share/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2024-01-04 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count289
-\l__pdf_internal_box=\box57
+\l__color_backend_stack_int=\count288
+\l__pdf_internal_box=\box55
 ) (./main.aux)
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 13.
-LaTeX Font Info:    ... okay on input line 13.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 13.
-LaTeX Font Info:    ... okay on input line 13.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 13.
-LaTeX Font Info:    ... okay on input line 13.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 13.
-LaTeX Font Info:    ... okay on input line 13.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 13.
-LaTeX Font Info:    ... okay on input line 13.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 13.
-LaTeX Font Info:    ... okay on input line 13.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 13.
-LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
 
 -- Lines per column: 56 (exact).
 (/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count290
-\scratchdimen=\dimen195
-\scratchbox=\box58
-\nofMPsegments=\count291
-\nofMParguments=\count292
-\everyMPshowfont=\toks28
-\MPscratchCnt=\count293
-\MPscratchDim=\dimen196
-\MPnumerator=\count294
-\makeMPintoPDFobject=\count295
-\everyMPtoPDFconversion=\toks29
+\scratchcounter=\count289
+\scratchdimen=\dimen188
+\scratchbox=\box56
+\nofMPsegments=\count290
+\nofMParguments=\count291
+\everyMPshowfont=\toks24
+\MPscratchCnt=\count292
+\MPscratchDim=\dimen189
+\MPnumerator=\count293
+\makeMPintoPDFobject=\count294
+\everyMPtoPDFconversion=\toks25
 ) (/usr/share/texlive/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
  (/usr/share/texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
-))
-Underfull \hbox (badness 6001) in paragraph at lines 35--36
-[]\OT1/ptm/m/n/10 The 1991 Lo-cal Gov-ern-ment Code de-volved ba-sic
- []
-
-(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd) (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd)
-Underfull \hbox (badness 3930) in paragraph at lines 85--85
-\OT1/ptm/m/n/8 PHP, inflation[]adjusted), av-er-aged
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 85--85
-[]|\OT1/ptm/m/n/8 Effective num-ber of can-di-dates
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 85--85
-\OT1/ptm/m/n/8 (Golosov mea-sure) { po-lit-i-cal
- []
-
-
-Underfull \hbox (badness 3240) in paragraph at lines 85--85
-[]|\OT1/ptm/m/n/8 Dummy for each elec-tion cy-cle
- []
-
-/home/jemarjohn/Documents/Research/mayors-slack-off/main.tex:90: Missing $ inserted.
-<inserted text> 
-                $
-l.90 ...ction from the fiscal file’s `incumbent_
-                                                  name`).
-I've inserted a begin-math/end-math symbol since I think
-you left one out. Proceed, with fingers crossed.
-
-/home/jemarjohn/Documents/Research/mayors-slack-off/main.tex:94: Missing $ inserted.
-<inserted text> 
-                $
-l.94 
-     
-I've inserted a begin-math/end-math symbol since I think
-you left one out. Proceed, with fingers crossed.
-
-
-Underfull \hbox (badness 1577) in paragraph at lines 89--94
-\OT1/ptm/m/n/10 pre-vi-ous in-cum-bent's sur-name (us-ing sur-name ex-trac-tion
- []
-
-
-Overfull \hbox (66.5037pt too wide) in paragraph at lines 89--94
-\OML/cmm/m/it/10 averagepercapitaspendinginthethreefiscalyearsfollowingtheelection: \OMS/cmsy/m/n/10 ^^@
- []
-
-
-Overfull \hbox (157.0536pt too wide) in paragraph at lines 89--94
-\OML/cmm/m/it/10 Pre[]spendingcontrols \OT1/cmr/m/n/10 : \OML/cmm/m/it/10 averagepercapitaspendinginthethreefiscalyearsbeforetheelection: \OMS/cmsy/m/n/10 ^^@
- []
-
-
-Overfull \hbox (152.45366pt too wide) in paragraph at lines 89--94
-\OML/cmm/m/it/10 Confounders \OT1/cmr/m/n/10 : `\OML/cmm/m/it/10 ira[]hare\OT1/cmr/m/n/10 `\OML/cmm/m/it/10 ; \OT1/cmr/m/n/10 `\OML/cmm/m/it/10 local[]ev[]c\OT1/cmr/m/n/10 `\OML/cmm/m/it/10 ; \OT1/cmr/m/n/10 `\OML/cmm/m/it/10 enc[]ol\OT1/cmr/m/n/10 `\OML/cmm/m/it/10 ; \OT1/cmr/m/n/10 `\OML/cmm/m/it/10 income[]lass\OT1/cmr/m/n/10 `\OML/cmm/m/it/10 ; region; electionyeardummies:$ 
- []
-
-[1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}
+)) [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}
 
 
 ]
-/home/jemarjohn/Documents/Research/mayors-slack-off/main.tex:112: Missing $ inserted.
-<inserted text> 
-                $
-l.112 ...e CATE as a function of moderators: `enc_
-                                                  gol` (high/low), `income_c...
-I've inserted a begin-math/end-math symbol since I think
-you left one out. Proceed, with fingers crossed.
-
-/home/jemarjohn/Documents/Research/mayors-slack-off/main.tex:113: Missing $ inserted.
-<inserted text> 
-                $
-l.113 
-      
-I've inserted a begin-math/end-math symbol since I think
-you left one out. Proceed, with fingers crossed.
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 112--113
-[]\OT1/ptm/m/n/10 Using `Causal-Forest-DML`, we es-ti-
+LaTeX Font Info:    Trying to load font information for U+msa on input line 56.
+ (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 56.
+ (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+)
+Underfull \hbox (badness 5696) in paragraph at lines 57--58
+[]\OT1/ptm/b/n/10 Outcomes \OT1/ptm/m/n/10 (post-election av-er-ages over t+1...t+3):
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 112--113
-\OT1/ptm/m/n/10 mate CATE as a func-tion of mod-er-a-tors:
+Underfull \hbox (badness 1442) in paragraph at lines 80--81
+[]\OT1/ptm/m/n/10 Statistical sig-nif-i-cance based on CI ex-clud-ing zero,
  []
 
 
-Overfull \hbox (273.52844pt too wide) in paragraph at lines 112--113
-\OT1/ptm/m/n/10 `enc$[]\OML/cmm/m/it/10 ol\OT1/cmr/m/n/10 `(\OML/cmm/m/it/10 high=low\OT1/cmr/m/n/10 )\OML/cmm/m/it/10 ; \OT1/cmr/m/n/10 `\OML/cmm/m/it/10 income[]lass\OT1/cmr/m/n/10 `(\OML/cmm/m/it/10 low; middle; high\OT1/cmr/m/n/10 )\OML/cmm/m/it/10 ; andregion\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 Luzon; Visayas; Mindanao\OT1/cmr/m/n/10 )\OML/cmm/m/it/10 :WeplotthesubgroupATEs:$ 
+LaTeX Warning: Reference `tab1' on page 2 undefined on input line 84.
+
+<Figure_2.png, id=10, 722.7pt x 402.5439pt>
+File: Figure_2.png Graphic file (type png)
+<use Figure_2.png>
+Package pdftex.def Info: Figure_2.png  used on input line 111.
+(pdftex.def)             Requested size: 252.0pt x 140.36423pt.
+
+Underfull \hbox (badness 3343) in paragraph at lines 129--130
+[]\OT1/ptm/b/n/10 Anti-dynasty leg-is-la-tion \OT1/ptm/m/n/10 (e.g., the pro-posed Anti-
  []
 
-
-Underfull \hbox (badness 2197) in paragraph at lines 115--120
-[]\OT1/ptm/m/n/10 - In-clude pre[]spending con-trols (base-line). - Ex-clude
- []
-
-Package textcomp Info: Symbol \textrightarrow not provided by
-(textcomp)             font family ptm in TS1 encoding.
-(textcomp)             Default family used instead on input line 127.
-Package textcomp Info: Symbol \textrightarrow not provided by
-(textcomp)             font family ptm in TS1 encoding.
-(textcomp)             Default family used instead on input line 128.
-Package textcomp Info: Symbol \textrightarrow not provided by
-(textcomp)             font family ptm in TS1 encoding.
-(textcomp)             Default family used instead on input line 129.
-[2{/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-ts1.enc}]
+[2 <./Figure_2.png>]
 
 ** Conference Paper **
 Before submitting the final camera ready copy, remember to:
@@ -436,31 +335,29 @@ Before submitting the final camera ready copy, remember to:
  uses only Type 1 fonts and that every step in the generation
  process uses the appropriate paper size.
 
-[3
-
-] (./main.aux)
+[3] (./main.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
  ***********
 
 
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+LaTeX Warning: There were undefined references.
 
  ) 
 Here is how much of TeX's memory you used:
- 4501 strings out of 474222
- 70094 string characters out of 5748733
- 1947975 words of memory out of 5000000
- 26699 multiletter control sequences out of 15000+600000
- 599200 words of font info for 112 fonts, out of 8000000 for 9000
+ 4275 strings out of 474222
+ 66664 string characters out of 5748733
+ 1943975 words of memory out of 5000000
+ 26482 multiletter control sequences out of 15000+600000
+ 601575 words of font info for 118 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 57i,11n,65p,1169b,302s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1000.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (3 pages, 139396 bytes).
+ 57i,16n,65p,1114b,317s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on main.pdf (3 pages, 148355 bytes).
 PDF statistics:
- 71 PDF objects out of 1000 (max. 8388607)
- 43 compressed objects within 1 object stream
+ 68 PDF objects out of 1000 (max. 8388607)
+ 40 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 6 words of extra memory for PDF output out of 10000 (max. 10000000)
 

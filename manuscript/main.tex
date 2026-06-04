@@ -1,0 +1,159 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\begin{document}
+
+\title{Generative Counterfactuals for Policy Analysis: Do Political Dynasties Reallocate Local Spending Toward Clientelism? Evidence from Philippine LGUs\\
+}
+
+\author{\IEEEauthorblockN{Jemar John J. Lumingkit}
+\IEEEauthorblockA{\textit{Mindanao State University -- Iligan Institute of Technology} \\
+Iligan City, Philippines \\
+jemar.lumingkit@g.msuiit.edu.ph}
+}
+
+\maketitle
+
+\begin{abstract}
+Political dynasties are pervasive in the Philippines, but their effect on local budget allocation remains contested. Using a 30-year panel of 227 provinces and cities (1992–2022), we train a conditional Generative Adversarial Network (CTGAN) to learn the joint distribution of fiscal variables, political competition, and dynasty status. For each dynasty-controlled LGU-year, we generate a counterfactual ``non-dynasty'' twin with identical income class, region, and other confounders. Comparing real dynasty spending with synthetic non-dynasty spending reveals a systematic reallocation: dynasties spend significantly less on health and education (public goods) and significantly more on public welfare, social services, and housing (clientelistic, targetable goods). These findings support the view that dynasties use local budgets to build patronage networks rather than invest in long-term human capital. The study introduces generative AI as a novel tool for evidence-based governance and directly supports SDGs 3, 4, 10, and 16.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Political dynasties, clientelism, counterfactual analysis, generative AI, CTGAN, Philippine local government, SDG 16
+\end{IEEEkeywords}
+
+\section{Introduction}
+The 1991 Local Government Code devolved substantial resources and responsibilities to Philippine local government units (LGUs). However, a persistent feature of Philippine politics is the prevalence of political dynasties – families that hold elective office across generations. While dynasties are widely criticized, empirical evidence on how they affect budget allocation remains mixed and often correlational.
+
+This study asks: Do political dynasties shift spending away from broad public goods (health, education) and toward targetable, clientelistic goods (welfare, housing, social services)? We answer using a novel generative counterfactual approach. We train a conditional GAN (CTGAN) on 30 years of LGU panel data, then for each dynasty-controlled LGU-year we generate a ``twin'' LGU-year where dynasty status is flipped to zero, holding all other features (income class, region, political competition) constant. Comparing real and synthetic spending reveals the causal-style effect of dynasty status.
+
+Our results show that dynasties significantly reduce health and education spending but increase public welfare, social services, and housing spending – a pattern consistent with clientelistic vote-buying. This is the first application of generative counterfactuals to Philippine local governance and demonstrates the potential of AI for policy analysis.
+
+\section{Literature Review}
+\subsection{Political Dynasties and Local Governance}
+Political dynasties are defined as families that control elective positions across multiple terms or offices. In the Philippines, Mendoza et al. \cite{mendoza2012} documented that dynasties are associated with higher poverty incidence. Capuno \cite{capuno2019} found that dynasties reduce local revenue collection but did not detect significant effects on spending levels. However, these studies rely on linear regression or simple RDD, which may miss non-linear reallocation across sectors.
+
+\subsection{Clientelism and Budget Allocation}
+Clientelism is a political strategy where politicians exchange targeted, divisible benefits for electoral support. In local government, clientelistic spending favors subsidies, housing, small infrastructure, and welfare – goods that can be attributed to the incumbent and distributed selectively. In contrast, public goods like health and education benefit everyone and yield less personal credit. Cross-country evidence shows that clientelistic politicians shift budgets away from health and education.
+
+\subsection{Generative AI for Counterfactual Policy Analysis}
+Generative Adversarial Networks (GANs) have been used to create synthetic data and counterfactual examples in medicine and economics but rarely in political science. CTGAN \cite{xu2019} extends GANs to tabular data with mixed continuous/categorical variables. By conditioning on treatment status, we can generate realistic counterfactual samples and estimate treatment effects without imposing linear functional forms. This study is the first to apply CTGAN to Philippine LGU data.
+
+\section{Data}
+We use the UP CIDS Philippine Local Government Interactive Dataset \cite{upcids2024}, which combines COMELEC election results and BLGF fiscal data from 1992 to 2022. The panel covers 227 LGUs (81 provinces and 146 cities) with 31 fiscal years and 11 election cycles. After cleaning, we retain 715 LGU-election cycles (396 dynasty, 319 non-dynasty). Variables include:
+
+\begin{itemize}
+    \item \textbf{Treatment:} \textit{dynasty = 1} if incumbent shares surname with previous incumbent.
+    \item \textbf{Outcomes} (post-election averages over t+1…t+3): health, education, public welfare, social services, economic development, labor, housing, government administration spending (million PHP).
+    \item \textbf{Confounders} (used for conditioning): IRA share, local revenue per capita, effective number of candidates (ENC, Golosov), income class (1-6), region (17), election year.
+\end{itemize}
+
+\section{Methodology}
+\subsection{Conditional GAN (CTGAN)}
+CTGAN \cite{xu2019} learns the joint distribution of tabular data using a generator and discriminator. The generator creates synthetic rows; the discriminator distinguishes real from synthetic. After training, we can condition generation on specific variable values (e.g., \textit{dynasty=0}, same income class and region). We train CTGAN with 500 epochs, batch size 500, using the sdv implementation.
+
+\subsection{Counterfactual Generation}
+For each dynasty LGU-year observation (N=396):
+\begin{enumerate}
+    \item Extract its \textit{income\_class} and \textit{region}.
+    \item Generate 20 synthetic rows conditioned on \textit{dynasty=0}, that income class, that region.
+    \item Average the 20 synthetic rows to obtain one counterfactual spending vector.
+\end{enumerate}
+
+We avoid per-row conditional generation by first generating a large synthetic dataset (500k rows) and then sampling matches. This is computationally efficient and reduces sampling noise.
+
+\subsection{Statistical Inference}
+For each spending sector, we compute the paired difference between counterfactual and real spending. We report:
+\begin{itemize}
+    \item Mean difference and 95\% bootstrap confidence interval (1000 resamples).
+    \item Cohen’s \textit{d} effect size.
+    \item Statistical significance based on CI excluding zero, with FDR correction for multiple sectors (Benjamini-Hochberg, $\alpha=0.05$).
+\end{itemize}
+
+\section{Results}
+Table \ref{tab1} summarizes the counterfactual comparisons. Figure \ref{fig2} illustrates the GAN counterfactual effect of removing a political dynasty.
+
+\begin{table*}[htbp]
+\caption{GAN Counterfactual Results: Dynasty vs. Non-Dynasty Spending}
+\begin{center}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrrrl}
+\toprule
+\textbf{Sector} & \textbf{Real (Dynasty) Mean} & \textbf{CF (Non-Dynasty) Mean} & \textbf{Difference (CF – Real)} & \textbf{95\% CI} & \textbf{Cohen’s d} & \textbf{Significant} \\
+\midrule
+Health & 156.82 & 222.26 & +65.44 & [49.38, 82.02] & 0.53 & $\checkmark$ REDUCE \\
+Education & 27.47 & 39.80 & +12.33 & [6.88, 16.18] & 0.37 & $\checkmark$ REDUCE \\
+Public welfare & 299.22 & 139.90 & --159.33 & [--190.91, --128.54] & --0.74 & $\checkmark$ INCREASE \\
+Social services & 45.30 & 23.64 & --21.66 & [--29.58, --15.90] & --0.41 & $\checkmark$ INCREASE \\
+Economic development & 191.76 & 200.80 & +9.04 & [--13.85, 29.73] & 0.06 & No \\
+Labor & 0.71 & 0.83 & +0.12 & [--0.20, 0.35] & 0.06 & No \\
+Housing & 8.19 & 2.82 & --5.36 & [--8.10, --3.10] & --0.29 & $\checkmark$ INCREASE \\
+Government (admin) & 375.88 & 452.48 & +76.60 & [37.95, 106.20] & 0.32 & $\checkmark$ REDUCE \\
+\bottomrule
+\end{tabular}%
+}
+\end{center}
+\vspace{2pt}
+\small\textit{Note:} Positive difference means non-dynasty spends more; negative difference means dynasty spends more. All significant effects survive FDR correction ($\alpha=0.05$).
+\end{table*}
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=\columnwidth]{Figure_2.png}}
+\caption{GAN Counterfactual Effect of Removing a Political Dynasty on Local Spending Differences.}
+\label{fig2}
+\end{figure}
+
+\textbf{Interpretation:} Dynasties significantly reduce spending on health and education – classic public goods. They significantly increase spending on public welfare, social services, and housing – goods that can be targeted to individuals or small groups. Government administration spending is also reduced (counterfactual non-dynasty spends more), possibly reflecting less bureaucracy or lower administrative capacity in dynasty LGUs.
+
+\textbf{This pattern is consistent with clientelism:} dynasties allocate resources toward visible, distributable benefits that can be used to reward supporters and attract votes, while underinvesting in broad public services.
+
+\section{Discussion}
+\subsection{Comparison with Previous Studies}
+Prior work often found no average effect of dynasties on spending levels \cite{capuno2019}. Our sector-specific counterfactual analysis reveals that the null average masks reallocation – dynasties shift budgets from health/education to welfare/housing. This explains why earlier regressions on total spending or single outcomes found weak effects.
+
+\subsection{Clientelistic Strategy}
+The results support the clientelistic interpretation. Dynasties, facing weaker electoral accountability and longer time horizons, prefer spending that generates personal loyalty. Welfare and housing projects are ideal: they can be announced with the incumbent’s name, delivered to specific barangays, and used to remind voters of benefits received. Health and education, by contrast, benefit everyone and are less effective for vote-buying.
+
+\subsection{Policy Implications}
+\begin{itemize}
+    \item \textbf{Anti-dynasty legislation} (e.g., the proposed Anti-Political Dynasty Act) may not only increase competition but also improve budget allocation toward public goods.
+    \item \textbf{Formula-based budgeting} – requiring a minimum share of IRA for health and education – could counteract the reallocation.
+    \item \textbf{Transparency measures} – public tracking of welfare and housing expenditures might reduce clientelistic misuse.
+\end{itemize}
+
+\subsection{Limitations}
+\begin{itemize}
+    \item The GAN counterfactual is associational, not causal; unobserved confounders (e.g., corruption) may bias results.
+    \item The synthetic data may produce unrealistic combinations, though we conditioned on income class and region to mitigate this.
+    \item We only analyzed governors; mayors may behave differently.
+    \item Spending is measured in millions, not per capita (population data unavailable), so differences partly reflect LGU size.
+\end{itemize}
+
+\section{Conclusion}
+Using a conditional GAN to generate counterfactual non-dynasty LGUs, we provide the first evidence that Philippine political dynasties reallocate local budgets away from health and education and toward public welfare, social services, and housing. This pattern is consistent with clientelistic vote-buying. Our method demonstrates how generative AI can enable transparent, data-driven policy analysis. For SDG 16 (peace, justice and strong institutions), the findings underscore the need for anti-dynasty reforms and public goods safeguards.
+
+\section*{Acknowledgment}
+This paper was originally presented at the 2nd International Conference on the UN SDGs and Social Innovation (ICUNSSI 2026) held on September 23–25, 2026, at the Mindanao State University-Iligan Institute of Technology, Iligan City, Philippines. We thank the UP CIDS Program on Social and Political Change for making the data publicly available.
+
+\begin{thebibliography}{00}
+\bibitem{lott1990} J. R. Lott Jr., ``Attendance rates, political shirking, and the effect of post-elective office employment,'' \textit{Economic Inquiry}, vol. 28, no. 1, pp. 133--150, 1990.
+\bibitem{rothenberg2000} L. S. Rothenberg and M. S. Sanders, ``Legislative shirking and electoral accountability,'' \textit{Public Choice}, vol. 103, no. 3/4, pp. 313--335, 2000.
+\bibitem{mendoza2012} R. U. Mendoza, E. L. Beja Jr., V. S. Venida, and D. B. Yap, ``Political dynasties and poverty: Measurement and evidence,'' \textit{Philippine Review of Economics}, vol. 49, no. 2, pp. 1--25, 2012.
+\bibitem{capuno2019} J. J. Capuno, ``Political dynasties and local fiscal performance: Evidence from the Philippines,'' \textit{Asian Journal of Political Science}, vol. 27, no. 2, pp. 123--145, 2019.
+\bibitem{upcids2024} UP CIDS, ``Philippine Local Government Interactive Dataset,'' 2024. [Online]. Available: https://elections.cids.up.edu.ph/
+\bibitem{lee2010} D. S. Lee and T. Lemieux, ``Regression discontinuity designs in economics,'' \textit{Journal of Economic Literature}, vol. 48, no. 2, pp. 281--355, 2010.
+\bibitem{chernozhukov2018} V. Chernozhukov et al., ``Double/debiased machine learning for treatment and structural parameters,'' \textit{The Econometrics Journal}, vol. 21, no. 1, pp. C1--C68, 2018.
+\bibitem{xu2019} L. Xu, M. Skoularidou, A. Cuesta-Infante, and K. Veeramachaneni, ``Modeling tabular data using conditional GAN,'' in \textit{Advances in Neural Information Processing Systems}, 2019, pp. 7335--7345.
+\end{thebibliography}
+
+\end{document}
