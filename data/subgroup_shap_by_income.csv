@@ -1,2 +1,2 @@
-income_class,n,mean_shap_delta_educ,mean_shap_delta_health,mean_shap_dynasty
-3,1682,0.052485888069434224,0.019716791040518166,0.006224393239156227
+income_class,n,mean_shap_delta_educ,mean_shap_delta_health,mean_shap_delta_pubwelf,mean_shap_dynasty,mean_shap_ira_share
+3,1682,0.03518305888820917,0.017332005400017378,0.05034413354173716,0.0011786807000035736,-0.012226056110538829
