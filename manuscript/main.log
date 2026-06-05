@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.3.23)  5 JUN 2026 10:17
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.3.23)  5 JUN 2026 11:02
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -350,17 +350,21 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: End \AtBeginDocument code.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 27.
- (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
-File: umsa.fd 2013/01/14 v3.01 AMS symbols A
-)
-LaTeX Font Info:    Trying to load font information for U+msb on input line 27.
- (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
-File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-)
+
 Underfull \hbox (badness 2478) in paragraph at lines 30--32
 \OT1/ptm/b/n/9 XG-Boost, re-gres-sion dis-con-ti-nu-ity, ac-count-able gov-er-nance,
  []
+
+LaTeX Font Info:    Trying to load font information for U+msa on input line 40.
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 40.
+ (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+)
+
+LaTeX Warning: Citation `b5' on page 1 undefined on input line 60.
 
 
 Underfull \hbox (badness 6978) in paragraph at lines 63--64
@@ -376,61 +380,91 @@ Overfull \hbox (23.05396pt too wide) in paragraph at lines 73--89
 
 
 ]
-<../data/roc_curve.png, id=15, 462.528pt x 346.896pt>
+
+LaTeX Warning: Citation `b9' on page 2 undefined on input line 94.
+
+<../data/roc_curve.png, id=14, 462.528pt x 346.896pt>
 File: ../data/roc_curve.png Graphic file (type png)
 <use ../data/roc_curve.png>
-Package pdftex.def Info: ../data/roc_curve.png  used on input line 122.
+Package pdftex.def Info: ../data/roc_curve.png  used on input line 146.
 (pdftex.def)             Requested size: 226.79846pt x 170.10226pt.
-<../data/correlation_heatmap.png, id=17, 578.16pt x 433.62pt>
+<../data/correlation_heatmap.png, id=16, 578.16pt x 433.62pt>
 File: ../data/correlation_heatmap.png Graphic file (type png)
 <use ../data/correlation_heatmap.png>
-Package pdftex.def Info: ../data/correlation_heatmap.png  used on input line 132.
+Package pdftex.def Info: ../data/correlation_heatmap.png  used on input line 156.
 (pdftex.def)             Requested size: 226.79846pt x 170.09697pt.
 
-Underfull \hbox (badness 3364) in paragraph at lines 133--133
+Underfull \hbox (badness 3364) in paragraph at lines 157--157
 []\OT1/ptm/m/n/10 Fig. 2: |Cor-re-la-tion heatmap of nu-meric fea-tures with
  []
 
-<../data/shap_bar.png, id=18, 570.4512pt x 679.0971pt>
+[2 <../data/roc_curve.png> <../data/correlation_heatmap.png>]
+<../data/shap_bar.png, id=23, 570.4512pt x 679.0971pt>
 File: ../data/shap_bar.png Graphic file (type png)
 <use ../data/shap_bar.png>
-Package pdftex.def Info: ../data/shap_bar.png  used on input line 142.
+Package pdftex.def Info: ../data/shap_bar.png  used on input line 166.
 (pdftex.def)             Requested size: 226.79846pt x 269.9968pt.
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [2 <../data/roc_curve.png> <../data/correlation_heatmap.png>]
-<../data/shap_dependence_educ.png, id=25, 507.8172pt x 353.6412pt>
+<../data/shap_dependence_educ.png, id=24, 507.8172pt x 353.6412pt>
 File: ../data/shap_dependence_educ.png Graphic file (type png)
 <use ../data/shap_dependence_educ.png>
-Package pdftex.def Info: ../data/shap_dependence_educ.png  used on input line 153.
+Package pdftex.def Info: ../data/shap_dependence_educ.png  used on input line 177.
 (pdftex.def)             Requested size: 120.95892pt x 84.23347pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 154--154
+Underfull \hbox (badness 10000) in paragraph at lines 178--178
 []\OT1/ptm/m/n/9 (a) |SHAP de-pen-dence for
  []
 
-<../data/shap_dependence_health.png, id=26, 507.8172pt x 353.6412pt>
+<../data/shap_dependence_health.png, id=25, 507.8172pt x 353.6412pt>
 File: ../data/shap_dependence_health.png Graphic file (type png)
 <use ../data/shap_dependence_health.png>
-Package pdftex.def Info: ../data/shap_dependence_health.png  used on input line 159.
+Package pdftex.def Info: ../data/shap_dependence_health.png  used on input line 183.
 (pdftex.def)             Requested size: 120.95892pt x 84.23347pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 160--160
+Underfull \hbox (badness 10000) in paragraph at lines 184--184
 []\OT1/ptm/m/n/9 (b) |SHAP de-pen-dence for
  []
 
-<../data/rdd_plot.png, id=27, 578.16pt x 433.62pt>
+LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 192.
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ts1ptm.fd
+File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
+)
+
+/home/jemarjohn/Documents/Research/mayors-slack-off/manuscript/main.tex:192: LaTeX Error: Unicode character ∆ (U+2206)
+               not set up for use with LaTeX.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.192 ...included. The interaction `dynasty × ∆
+                                                  health` appears at positio...
+You may provide a definition with
+\DeclareUnicodeCharacter 
+
+
+/home/jemarjohn/Documents/Research/mayors-slack-off/manuscript/main.tex:192: LaTeX Error: Unicode character ∆ (U+2206)
+               not set up for use with LaTeX.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.192 ...ncreases. The interaction `dynasty × ∆
+                                                  educ` has a higher mean ab...
+You may provide a definition with
+\DeclareUnicodeCharacter 
+
+<../data/rdd_plot.png, id=26, 578.16pt x 433.62pt>
 File: ../data/rdd_plot.png Graphic file (type png)
 <use ../data/rdd_plot.png>
-Package pdftex.def Info: ../data/rdd_plot.png  used on input line 189.
+Package pdftex.def Info: ../data/rdd_plot.png  used on input line 237.
 (pdftex.def)             Requested size: 226.79846pt x 170.09697pt.
-<../data/rdd_sensitivity.png, id=28, 433.62pt x 289.08pt>
+<../data/rdd_sensitivity.png, id=27, 433.62pt x 289.08pt>
 File: ../data/rdd_sensitivity.png Graphic file (type png)
 <use ../data/rdd_sensitivity.png>
-Package pdftex.def Info: ../data/rdd_sensitivity.png  used on input line 196.
+Package pdftex.def Info: ../data/rdd_sensitivity.png  used on input line 244.
 (pdftex.def)             Requested size: 226.79846pt x 151.20024pt.
-[3 <../data/shap_bar.png> <../data/shap_dependence_educ.png> <../data/shap_dependence_health.png> <../data/rdd_plot.png> <../data/rdd_sensitivity.png>]
+[3 <../data/shap_bar.png> <../data/shap_dependence_educ.png> <../data/shap_dependence_health.png> <../data/rdd_plot.png>]
 
 ** Conference Paper **
 Before submitting the final camera ready copy, remember to:
@@ -442,27 +476,32 @@ Before submitting the final camera ready copy, remember to:
  uses only Type 1 fonts and that every step in the generation
  process uses the appropriate paper size.
 
-[4
-
-] (./main.aux)
+[4 <../data/rdd_sensitivity.png>] (./main.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
  ***********
+
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
  ) 
 Here is how much of TeX's memory you used:
- 6052 strings out of 474222
- 100224 string characters out of 5748733
- 1941975 words of memory out of 5000000
- 28237 multiletter control sequences out of 15000+600000
- 599793 words of font info for 116 fonts, out of 8000000 for 9000
+ 6081 strings out of 474222
+ 100638 string characters out of 5748733
+ 1942975 words of memory out of 5000000
+ 28261 multiletter control sequences out of 15000+600000
+ 600418 words of font info for 118 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 67i,9n,77p,1545b,473s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (4 pages, 1081352 bytes).
+ 67i,9n,77p,1351b,508s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on main.pdf (4 pages, 1077009 bytes).
 PDF statistics:
- 88 PDF objects out of 1000 (max. 8388607)
- 45 compressed objects within 1 object stream
+ 83 PDF objects out of 1000 (max. 8388607)
+ 42 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  36 words of extra memory for PDF output out of 10000 (max. 10000000)
 

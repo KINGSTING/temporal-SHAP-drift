@@ -24,7 +24,7 @@ Email: jemar.lumingkit@g.msuiit.edu.ph}
 \maketitle
 
 \begin{abstract}
-Do voters reward governors for better health and education spending, increased local revenue, and lower IRA dependence? Using a panel of Philippine provinces (1992–2022) and an XGBoost classifier, we predict gubernatorial re‑election based on fiscal performance, political competition, dynasty status, and previous vote margin. The model achieves 87.5\% accuracy and an ROC‑AUC of 0.955, demonstrating that fiscal indicators strongly separate winners from losers. Feature importance reveals that education spending growth, health spending growth, local revenue per capita, and dynasty status are among the top predictors, after regional fixed effects. However, a temporal validation (training on pre‑2016 data and testing on 2019–2022) shows poor generalisation (accuracy 44.3\%), indicating that electoral dynamics change over time. To address causality, we implement a regression discontinuity design (RDD) on close elections (margin $<$5\%). The RDD estimates a positive effect of winning on health spending growth (ATE = 1.50, 95\% CI [0.07, 2.94]), suggesting a causal link, though the effect is sensitive to bandwidth choice. The results provide evidence that voters reward visible service delivery and fiscal effort, but the temporal instability and weak causal evidence warn against strong claims. The study aligns with SDG 16 (accountable governance) and SDG 4 (quality education).
+Do voters reward governors for better health and education spending, increased local revenue, and lower IRA dependence? Using a panel of Philippine provinces (1992–2022) and an XGBoost classifier, we predict gubernatorial re‑election based on fiscal performance, political competition, dynasty status, and previous vote margin. With 5‑fold stratified cross‑validation, the model achieves a mean accuracy of 92.0\% (SD 0.8\%) and an ROC‑AUC of 0.977 (SD 0.006). SHAP analysis shows that education and health spending growth are top predictors. A dynasty‑by‑health interaction term appears in the top ten features (gain importance 0.044, mean SHAP 0.020), indicating that dynastic incumbents receive a small positive electoral reward for health spending increases. Temporal validation (training on pre‑2016 data and testing on 2019–2022) shows poor generalisation (accuracy 44.3\%), suggesting electoral dynamics change over time. Regression discontinuity estimates a positive but fragile effect of winning on health spending (ATE = 1.50, 95\% CI [0.07, 2.94]). All provinces in the dataset belong to income class 3, preventing a rich‑poor subgroup analysis. The results align with SDG 16 (accountable governance) and SDG 4 (quality education).
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -45,7 +45,7 @@ This study uses an XGBoost classifier to predict whether an incumbent governor w
 \item Income class and region
 \end{itemize}
 
-We also implement a regression discontinuity design (RDD) on close elections to estimate the causal effect of winning on subsequent health spending growth.
+We also implement a regression discontinuity design (RDD) on close elections to estimate the causal effect of winning on subsequent health spending growth, and we include interaction terms to test whether fiscal accountability differs between dynastic and non‑dynastic incumbents.
 
 \section{Data and Variables}
 
@@ -80,7 +80,7 @@ $\Delta$local\_rev & same for local revenue per capita \\
 enc\_gol & effective number of candidates (political competition) \\
 dynasty & 1 if incumbent shares surname with previous governor, else 0 \\
 prev\_margin & incumbent’s vote share in the previous election \\
-income\_class & 1 (richest) to 6 (poorest) \\
+income\_class & 1 (richest) to 6 (poorest) – all observations are class 3 \\
 region & 17 regions (one‑hot encoded) \\
 \midrule
 \textbf{Target} & \textbf{won} = 1 if re‑elected, 0 otherwise \\
@@ -91,7 +91,7 @@ region & 17 regions (one‑hot encoded) \\
 \section{Methodology}
 
 \subsection{Predictive Model (XGBoost)}
-We use an \textbf{XGBoost classifier} with 200 trees, maximum depth 5, learning rate 0.05, and subsample/colsample by tree 0.8. The model is trained on 80\% of the data (stratified by the target) and evaluated on the remaining 20\%. Feature importance is extracted using SHAP (SHapley Additive exPlanations) values \cite{b9}.
+We use an \textbf{XGBoost classifier} with 200 trees, maximum depth 5, learning rate 0.05, and subsample/colsample by tree 0.8. Model evaluation is performed using 5‑fold stratified cross‑validation. Feature importance is extracted using SHAP (SHapley Additive exPlanations) values \cite{b9}. To explore heterogeneity, we add interaction terms (dynasty $\times$ $\Delta$educ, dynasty $\times$ $\Delta$health).
 
 \subsection{Temporal Validation}
 We perform a temporal robustness check: train on elections up to 2016, test on 2019–2022.
@@ -101,26 +101,50 @@ To address endogeneity, we exploit close elections. The running variable is the 
 
 \section{Results}
 
-\subsection{Model Performance (Random Split)}
-The main model (random split) achieves:
-\begin{itemize}
-\item \textbf{Accuracy:} 87.5\%
-\item \textbf{ROC‑AUC:} 0.955
-\item \textbf{Confusion matrix:}
-  \begin{itemize}
-    \item True positives: 137
-    \item False positives: 21
-    \item True negatives: 158
-    \item False negatives: 21
-  \end{itemize}
-\item \textbf{Precision:} 0.867, \textbf{Recall:} 0.867, \textbf{F1:} 0.867
-\end{itemize}
-The ROC curve (Fig. 1) confirms excellent separation.
+\subsection{Model Performance (Cross‑Validation)}
+Table I reports the 5‑fold cross‑validation results for XGBoost. The model achieves a mean accuracy of 92.0\% (SD 0.8\%) and a mean AUC of 0.977 (SD 0.006), with precision, recall, and F1 scores all above 0.91.
+
+\begin{table}[H]
+\caption{5‑fold cross‑validation results for XGBoost}
+\centering
+\begin{tabular}{lccccc}
+\toprule
+Fold & Accuracy & AUC & Precision & Recall & F1 \\
+\midrule
+1 & 0.935 & 0.985 & 0.915 & 0.949 & 0.932 \\
+2 & 0.911 & 0.970 & 0.932 & 0.873 & 0.902 \\
+3 & 0.917 & 0.982 & 0.877 & 0.955 & 0.915 \\
+4 & 0.923 & 0.979 & 0.912 & 0.924 & 0.918 \\
+5 & 0.914 & 0.971 & 0.927 & 0.885 & 0.906 \\
+\midrule
+\textbf{Mean} & \textbf{0.920} & \textbf{0.977} & \textbf{0.913} & \textbf{0.917} & \textbf{0.914} \\
+\textbf{SD} & \textbf{0.008} & \textbf{0.006} & \textbf{0.020} & \textbf{0.035} & \textbf{0.012} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+For comparison, Table II presents the cross‑validated performance of baseline models. XGBoost substantially outperforms logistic regression (accuracy 62.7\%, AUC 0.663) and random forest (accuracy 73.9\%, AUC 0.853). LightGBM achieves close performance (accuracy 90.3\%, AUC 0.969) but remains slightly inferior to XGBoost.
+
+\begin{table}[H]
+\caption{Comparison of baseline models (5‑fold CV)}
+\centering
+\begin{tabular}{lcc}
+\toprule
+Model & Accuracy (mean) & AUC (mean) \\
+\midrule
+Logistic Regression & 0.627 & 0.663 \\
+Random Forest & 0.739 & 0.853 \\
+LightGBM & 0.903 & 0.969 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The ROC curve (Fig. 1) from a representative fold confirms excellent separation.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.9\columnwidth]{../data/roc_curve.png}
-\caption{ROC curve (random split).}
+\caption{ROC curve (random split example).}
 \label{fig:roc}
 \end{figure}
 
@@ -135,7 +159,7 @@ Figure 2 shows the correlation between numeric features and the target. Health s
 \end{figure}
 
 \subsection{Feature Importance (SHAP)}
-Figure 3 shows the SHAP bar plot (mean absolute SHAP values). Positive SHAP values indicate that higher feature values increase the probability of re‑election, while negative values decrease it. Education spending growth (\(\Delta\)educ), political competition (enc\_gol), and health spending growth (\(\Delta\)health) are the most important numeric predictors after region fixed effects. Dynasty also appears with a positive contribution, confirming that name recognition helps re‑election.
+Figure 3 shows the SHAP bar plot (mean absolute SHAP values). Education spending growth ($\Delta$educ), political competition (enc\_gol), and health spending growth ($\Delta$health) are the most important numeric predictors after region fixed effects. The mean absolute SHAP for $\Delta$educ is 0.363, for enc\_gol 0.460, and for $\Delta$health 0.326.
 
 \begin{figure}[H]
 \centering
@@ -145,7 +169,7 @@ Figure 3 shows the SHAP bar plot (mean absolute SHAP values). Positive SHAP valu
 \end{figure}
 
 \subsection{SHAP Dependence Analysis}
-Figures 4a and 4b show the SHAP dependence plots for education growth (\(\Delta\)educ) and health growth (\(\Delta\)health). The SHAP value increases with higher growth rates, indicating that voters reward governors who raise per‑capita education and health spending. The effect is approximately linear for education and shows diminishing returns for health at very high growth rates.
+Figures 4a and 4b show the SHAP dependence plots for education growth ($\Delta$educ) and health growth ($\Delta$health). The SHAP value increases with higher growth rates, indicating that voters reward governors who raise per‑capita education and health spending.
 
 \begin{figure}[H]
 \centering
@@ -164,11 +188,35 @@ Figures 4a and 4b show the SHAP dependence plots for education growth (\(\Delta\
 \label{fig:shap_dep}
 \end{figure}
 
+\subsection{Heterogeneity: Dynasty Interactions}
+Table III shows the top features when interaction terms are included. The interaction `dynasty × ∆health` appears at position 9 with gain importance 0.044. Its mean SHAP value (non‑absolute) is 0.020, indicating a small positive effect – dynastic incumbents receive a slightly higher electoral reward for health spending increases. The interaction `dynasty × ∆educ` has a higher mean absolute SHAP (0.252) but lower gain importance, suggesting it is important in some nonlinear way.
+
+\begin{table}[H]
+\caption{Top features including interactions (gain importance)}
+\centering
+\begin{tabular}{lc}
+\toprule
+Feature & Importance \\
+\midrule
+region (Cagayan Valley) & 0.064 \\
+region (Bicol Region) & 0.064 \\
+region (BARMM) & 0.063 \\
+region (CALABARZON) & 0.059 \\
+region (CARAGA) & 0.051 \\
+$\Delta$educ & 0.049 \\
+region (SOCCSKSARGEN) & 0.049 \\
+dynasty & 0.047 \\
+\textbf{dynasty × $\Delta$health} & \textbf{0.044} \\
+enc\_gol & 0.042 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \subsection{Temporal Robustness}
 When trained on pre‑2016 data and tested on 2019–2022, performance drops dramatically: accuracy 44.3\%, AUC 0.412. This indicates that the model does not generalise to future elections.
 
 \subsection{Regression Discontinuity Results}
-Table I presents the RDD estimates for health spending growth. For the 5\% bandwidth, winning a close election increases health spending growth by 1.50 percentage points (95\% CI [0.07, 2.94]). Figure 5 shows the discontinuity plot, and Figure 6 shows sensitivity to bandwidth.
+Table IV presents the RDD estimates for health spending growth. For the 5\% bandwidth, winning a close election increases health spending growth by 1.50 percentage points (95\% CI [0.07, 2.94]). Figure 5 shows the discontinuity plot, and Figure 6 shows sensitivity to bandwidth.
 
 \begin{table}[H]
 \caption{RDD estimates (health spending growth)}
@@ -198,11 +246,16 @@ Bandwidth & ATE & SE & 95\% CI \\
 \label{fig:rdd_sens}
 \end{figure}
 
+\subsection{Income Class Subgroup Analysis}
+All observations in the final dataset belong to income class 3 (n=1682). The mean SHAP values for this class are: $\Delta$educ = 0.0525, $\Delta$health = 0.0197, dynasty = 0.0062. No comparison between rich and poor provinces is possible. This is a limitation of the sample after merging and cleaning.
+
 \section{Discussion}
 
-The random split results show strong correlation between fiscal performance and re‑election. However, the temporal failure suggests that the relationship is not stable over time – possibly due to the COVID‑19 pandemic or changing voter priorities. The RDD provides weak causal evidence: winning a close election increases health spending growth, but the effect is only significant at the 5\% bandwidth.
+The cross‑validated results provide strong evidence that fiscal performance correlates with gubernatorial re‑election in the Philippines. XGBoost consistently outperforms baseline models, and SHAP analysis shows that education and health spending growth positively affect re‑election probability. The dynasty‑by‑health interaction term suggests a small positive effect (mean SHAP 0.020): dynastic incumbents may be rewarded slightly more for health spending than non‑dynastic ones, possibly because they have better political machinery to convert spending into credit. However, the effect size is small, and the interaction with education is less clear.
 
-Overall, the evidence supports the view that voters reward fiscal effort, but the effect is not robust across all specifications. Policy implications include:
+The temporal failure suggests that the relationship is not stable over time – possibly due to the COVID‑19 pandemic or changing voter priorities. The RDD provides weak causal evidence: winning a close election increases health spending growth, but the effect is only significant at the 5\% bandwidth.
+
+Policy implications:
 - \textbf{Invest in education and health:} Voters reward improvements in these sectors.
 - \textbf{Local revenue effort:} Increasing local taxes is electorally beneficial (SDG 16).
 - \textbf{Dynasties have an advantage:} Anti‑dynasty legislation may reduce incumbency advantage.
@@ -213,10 +266,11 @@ Overall, the evidence supports the view that voters reward fiscal effort, but th
 \item Temporal generalisation fails.
 \item The RDD effect is sensitive to bandwidth and only marginally significant.
 \item The dataset is limited to governors; mayors may behave differently.
+\item Only income class 3 appears in the final sample, preventing heterogeneity analysis by income.
 \end{itemize}
 
 \section{Conclusion}
-This study demonstrates that fiscal performance correlates with gubernatorial re‑election in the Philippines, but causal evidence is weak and temporal dynamics matter. The work contributes to SDG 16 (accountable institutions) and SDG 4 (quality education). Future research should incorporate time‑varying effects and larger samples of close elections.
+This study demonstrates that fiscal performance correlates with gubernatorial re‑election in the Philippines, with robust cross‑validation metrics (accuracy 92.0\%, AUC 0.977). SHAP analysis shows that education and health spending growth are key drivers. A small positive interaction between dynasty and health spending (mean SHAP 0.020) suggests that dynastic incumbents may be slightly better at converting health spending into votes. However, temporal instability and sample limitations (only one income class) constrain generalisability. The work contributes to SDG 16 (accountable institutions) and SDG 4 (quality education). Future research should incorporate time‑varying effects and larger samples with diverse income classes.
 
 \section*{Acknowledgment}
 This paper was originally presented at the 2nd International Conference on the UN SDGs and Social Innovation (ICUNSSI 2026) held on September 23–25, 2026, at the Mindanao State University‑Iligan Institute of Technology, Iligan City, Philippines.
