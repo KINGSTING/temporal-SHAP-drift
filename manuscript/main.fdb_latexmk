@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1780645850.47285 "/home/jemarjohn/Documents/Research/mayors-slack-off/manuscript/main.tex" "main.pdf" "main" 1780645853.8415 0
+["pdflatex"] 1780647656.60831 "/home/jemarjohn/Documents/Research/mayors-slack-off/manuscript/main.tex" "main.pdf" "main" 1780647659.7339 0
   "../data/calibration_curve.png" 1780629698.55097 137871 d5ec087bb1f7d5c66701faa66f0ace11 ""
   "../data/correlation_heatmap.png" 1780629251.33623 370163 dc1f0b60b6b1de9d4122188efda99ab5 ""
   "../data/mccrary_plot.png" 1780636739.61596 85161 9d2cd25786090d41d04998d5efbe31c2 ""
@@ -10,7 +10,7 @@
   "../data/rolling_cv.png" 1780631431.68663 162029 47b54443f8b36ca9c691360b2c32b27e ""
   "../data/shap_bar.png" 1780629382.16118 265504 8e92b3e5affda65ede270405386a1002 ""
   "/etc/texmf/web2c/texmf.cnf" 1774230397.63028 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/jemarjohn/Documents/Research/mayors-slack-off/manuscript/main.tex" 1780645845.7554 33927 67c50d06f936178985ee208a4ae96069 ""
+  "/home/jemarjohn/Documents/Research/mayors-slack-off/manuscript/main.tex" 1780647656.39857 34099 2705153557efe35d1f602b3c91b2dd3a ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/adobe/courier/pcrr7t.tfm" 1136768653 960 379cc0019370a9e0208a0a3f949f847a ""
@@ -114,9 +114,9 @@
   "/usr/share/texmf/web2c/texmf.cnf" 1707919699 40399 f2c302f7d2af602abb742093540a5834 ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1774230416.1899 5472669 54eaf61a88b6b7896ebd0dac973cb29c ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1774230515 8214686 ef281dd011a452183b355662515100ad ""
-  "main.aux" 1780645853.76141 11242 e6de73878ac42fc6c0c9f9693adfd3dd "pdflatex"
-  "main.out" 1780645853.76241 3802 c1a07cfdf02263ce5d83dd6f59e4f56e "pdflatex"
-  "main.tex" 1780645845.7554 33927 67c50d06f936178985ee208a4ae96069 ""
+  "main.aux" 1780647659.6693 11242 90a4141691415d2d02f2ee8b636b0c23 "pdflatex"
+  "main.out" 1780647659.6693 3802 c1a07cfdf02263ce5d83dd6f59e4f56e "pdflatex"
+  "main.tex" 1780647656.39857 34099 2705153557efe35d1f602b3c91b2dd3a ""
   (generated)
   "main.aux"
   "main.log"

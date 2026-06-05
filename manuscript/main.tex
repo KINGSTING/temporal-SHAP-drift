@@ -25,7 +25,7 @@
 
 % Footer: URL centred, page counter right
 \cfoot{\small\url{https://icunssi.msuiit.edu.ph/}}
-\rfoot{\small\thepage\,|\,Page}
+\rfoot{\small\thepage\ $|$ Page}
 
 % Remove the default IEEEtran head rule and add a thin one below our header
 \renewcommand{\headrulewidth}{0.4pt}
@@ -34,6 +34,8 @@
 % Give the header enough room so it does not collide with the text body
 \setlength{\headheight}{42pt}
 \setlength{\topmargin}{-30pt}       % compensate so text area is unchanged
+\setlength{\footskip}{32pt}         % space between text body bottom and footer
+\addtolength{\textheight}{-36pt}    % shrink text area to create breathing room for footer
 %% ─────────────────────────────────────────────────────────────────────────────
 
 \begin{document}

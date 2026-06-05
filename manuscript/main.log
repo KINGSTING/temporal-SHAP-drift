@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.3.23)  5 JUN 2026 15:50
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.3.23)  5 JUN 2026 16:20
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -377,26 +377,26 @@ File: l3backend-pdftex.def 2024-01-04 L3 backend support: PDF output (pdfTeX)
 ) (./main.aux)
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 39.
-LaTeX Font Info:    ... okay on input line 39.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 39.
-LaTeX Font Info:    ... okay on input line 39.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 39.
-LaTeX Font Info:    ... okay on input line 39.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 39.
-LaTeX Font Info:    ... okay on input line 39.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 39.
-LaTeX Font Info:    ... okay on input line 39.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 39.
-LaTeX Font Info:    ... okay on input line 39.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 39.
-LaTeX Font Info:    ... okay on input line 39.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 39.
-LaTeX Font Info:    ... okay on input line 39.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 39.
-LaTeX Font Info:    ... okay on input line 39.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
 
--- Lines per column: 56 (exact).
+-- Lines per column: 53 (exact).
 (/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count303
@@ -419,7 +419,7 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: hyperref package is loaded.
 Package caption Info: End \AtBeginDocument code.
-Package hyperref Info: Link coloring OFF on input line 39.
+Package hyperref Info: Link coloring OFF on input line 41.
  (./main.out) (./main.out)
 \@outlinefile=\write3
 \openout3 = `main.out'.
@@ -428,79 +428,83 @@ Package hyperref Info: Link coloring OFF on input line 39.
 
 
 ]
-LaTeX Font Info:    Trying to load font information for OT1+pcr on input line 85.
+LaTeX Font Info:    Trying to load font information for OT1+pcr on input line 87.
  (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1pcr.fd
 File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
 )
-Overfull \hbox (5.4466pt too wide) in paragraph at lines 91--108
+Overfull \hbox (5.4466pt too wide) in paragraph at lines 93--110
  [][] 
  []
 
-<../data/roc_curve.png, id=120, 462.528pt x 346.896pt>
+[2]
+<../data/roc_curve.png, id=137, 462.528pt x 346.896pt>
 File: ../data/roc_curve.png Graphic file (type png)
 <use ../data/roc_curve.png>
-Package pdftex.def Info: ../data/roc_curve.png  used on input line 152.
+Package pdftex.def Info: ../data/roc_curve.png  used on input line 154.
 (pdftex.def)             Requested size: 232.19843pt x 174.15157pt.
-<../data/calibration_curve.png, id=122, 433.62pt x 433.62pt>
+<../data/calibration_curve.png, id=139, 433.62pt x 433.62pt>
 File: ../data/calibration_curve.png Graphic file (type png)
 <use ../data/calibration_curve.png>
-Package pdftex.def Info: ../data/calibration_curve.png  used on input line 159.
+Package pdftex.def Info: ../data/calibration_curve.png  used on input line 161.
 (pdftex.def)             Requested size: 232.19843pt x 232.19945pt.
-[2]
-<../data/rolling_cv.png, id=147, 578.16pt x 361.35pt>
+<../data/rolling_cv.png, id=145, 578.16pt x 361.35pt>
 File: ../data/rolling_cv.png Graphic file (type png)
 <use ../data/rolling_cv.png>
-Package pdftex.def Info: ../data/rolling_cv.png  used on input line 194.
+Package pdftex.def Info: ../data/rolling_cv.png  used on input line 196.
 (pdftex.def)             Requested size: 232.19843pt x 145.12189pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
  [3 <../data/roc_curve.png> <../data/calibration_curve.png>]
-<../data/shap_bar.png, id=165, 570.6921pt x 679.0971pt>
+<../data/shap_bar.png, id=164, 570.6921pt x 679.0971pt>
 File: ../data/shap_bar.png Graphic file (type png)
 <use ../data/shap_bar.png>
-Package pdftex.def Info: ../data/shap_bar.png  used on input line 234.
+Package pdftex.def Info: ../data/shap_bar.png  used on input line 236.
 (pdftex.def)             Requested size: 232.19843pt x 276.297pt.
 
-Underfull \hbox (badness 1565) in paragraph at lines 235--235
+Underfull \hbox (badness 1565) in paragraph at lines 237--237
 \OT1/ptm/m/n/10 model. The dynasty--IRA in-ter-ac-tion and pub-lic wel-fare
  []
 
-<../data/pdp_plots.png, id=166, 722.7pt x 289.08pt>
+<../data/pdp_plots.png, id=165, 722.7pt x 289.08pt>
 File: ../data/pdp_plots.png Graphic file (type png)
 <use ../data/pdp_plots.png>
-Package pdftex.def Info: ../data/pdp_plots.png  used on input line 241.
+Package pdftex.def Info: ../data/pdp_plots.png  used on input line 243.
 (pdftex.def)             Requested size: 232.19843pt x 92.878pt.
-<../data/correlation_heatmap.png, id=167, 722.7pt x 578.16pt>
+<../data/correlation_heatmap.png, id=166, 722.7pt x 578.16pt>
 File: ../data/correlation_heatmap.png Graphic file (type png)
 <use ../data/correlation_heatmap.png>
-Package pdftex.def Info: ../data/correlation_heatmap.png  used on input line 248.
+Package pdftex.def Info: ../data/correlation_heatmap.png  used on input line 250.
 (pdftex.def)             Requested size: 232.19843pt x 185.75603pt.
-[4 <../data/rolling_cv.png> <../data/shap_bar.png> <../data/pdp_plots.png>]
-<../data/rdd_plot_delta_health.png, id=186, 578.16pt x 433.62pt>
+[4 <../data/rolling_cv.png> <../data/shap_bar.png>]
+<../data/rdd_plot_delta_health.png, id=183, 578.16pt x 433.62pt>
 File: ../data/rdd_plot_delta_health.png Graphic file (type png)
 <use ../data/rdd_plot_delta_health.png>
-Package pdftex.def Info: ../data/rdd_plot_delta_health.png  used on input line 279.
+Package pdftex.def Info: ../data/rdd_plot_delta_health.png  used on input line 281.
 (pdftex.def)             Requested size: 232.19843pt x 174.14627pt.
-<../data/rdd_sensitivity_delta_health.png, id=187, 433.62pt x 289.08pt>
+<../data/rdd_sensitivity_delta_health.png, id=184, 433.62pt x 289.08pt>
 File: ../data/rdd_sensitivity_delta_health.png Graphic file (type png)
 <use ../data/rdd_sensitivity_delta_health.png>
-Package pdftex.def Info: ../data/rdd_sensitivity_delta_health.png  used on input line 286.
+Package pdftex.def Info: ../data/rdd_sensitivity_delta_health.png  used on input line 288.
 (pdftex.def)             Requested size: 232.19843pt x 154.79962pt.
-<../data/mccrary_plot.png, id=190, 578.16pt x 361.35pt>
+ [5 <../data/pdp_plots.png> <../data/correlation_heatmap.png> <../data/rdd_plot_delta_health.png> <../data/rdd_sensitivity_delta_health.png>]
+<../data/mccrary_plot.png, id=199, 578.16pt x 361.35pt>
 File: ../data/mccrary_plot.png Graphic file (type png)
 <use ../data/mccrary_plot.png>
-Package pdftex.def Info: ../data/mccrary_plot.png  used on input line 297.
+Package pdftex.def Info: ../data/mccrary_plot.png  used on input line 299.
 (pdftex.def)             Requested size: 232.19843pt x 145.12189pt.
- [5 <../data/correlation_heatmap.png> <../data/rdd_plot_delta_health.png> <../data/rdd_sensitivity_delta_health.png>] [6 <../data/mccrary_plot.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 360--361
+ [6 <../data/mccrary_plot.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 362--363
 []\OT1/ptm/m/n/8 Philippine Cen-ter for In-ves-tiga-tive Jour-nal-ism, ``113 out
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 360--361
+Underfull \hbox (badness 10000) in paragraph at lines 362--363
 \OT1/ptm/m/n/8 of 149 Philip-pine cities also ruled by po-lit-i-cal dy-nas-ties,''
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 360--361
+Underfull \hbox (badness 10000) in paragraph at lines 362--363
 \OT1/ptm/m/n/8 Jan. 2025. [On-line]. Avail-able: []$https : / / pcij . org / 2025 / 01 / 26 /
  []
 
@@ -515,9 +519,7 @@ Before submitting the final camera ready copy, remember to:
  uses only Type 1 fonts and that every step in the generation
  process uses the appropriate paper size.
 
-[7
-
-] 
+[7] 
 enddocument/afterlastpage: lastpage setting LastPage.
 (./main.aux)
  ***********
@@ -530,13 +532,13 @@ Package rerunfilecheck Info: File `main.out' has not changed.
 Here is how much of TeX's memory you used:
  11966 strings out of 474222
  195163 string characters out of 5748733
- 1949975 words of memory out of 5000000
+ 1948975 words of memory out of 5000000
  34023 multiletter control sequences out of 15000+600000
  594029 words of font info for 102 fonts, out of 8000000 for 9000
  1144 hyphenation exceptions out of 8191
- 75i,15n,79p,1796b,449s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,14n,79p,1796b,457s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (7 pages, 1465233 bytes).
+Output written on main.pdf (7 pages, 1465098 bytes).
 PDF statistics:
  289 PDF objects out of 1000 (max. 8388607)
  235 compressed objects within 3 object streams

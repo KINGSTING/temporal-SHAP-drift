@@ -7,18 +7,18 @@
 \citation{panao2020philippine}
 \@writefile{toc}{\contentsline {section}{\numberline {I}Introduction}{1}{section.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {II}Theoretical Framework}{1}{section.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {III}Data and Variables}{1}{section.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-A}}Data Sources}{1}{subsection.3.1}\protected@file@percent }
 \citation{chen2016xgboost}
 \citation{lundberg2017unified}
 \citation{lee2010regression}
+\@writefile{toc}{\contentsline {section}{\numberline {III}Data and Variables}{2}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-A}}Data Sources}{2}{subsection.3.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-B}}Data Construction}{2}{subsection.3.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-C}}Variables}{2}{subsection.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {IV}Methodology}{2}{section.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-A}}Predictive Model}{2}{subsection.4.1}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {I}{\ignorespaces Features and Target Variable}}{2}{table.caption.1}\protected@file@percent }
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
 \newlabel{tab:features}{{I}{2}{Features and Target Variable}{table.caption.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {IV}Methodology}{2}{section.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-A}}Predictive Model}{2}{subsection.4.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-B}}Temporal Validation}{2}{subsection.4.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-C}}Regression Discontinuity Design}{2}{subsection.4.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {V}Results}{2}{section.5}\protected@file@percent }
@@ -29,40 +29,39 @@
 \newlabel{tab:cv}{{II}{3}{5-Fold Cross-Validation Results for XGBoost (Random Split)}{table.caption.2}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces ROC curve from a representative fold of the random cross-validation (AUC~=~0.989), indicating strong in-sample discriminatory power.}}{3}{figure.caption.3}\protected@file@percent }
 \newlabel{fig:roc}{{1}{3}{ROC curve from a representative fold of the random cross-validation (AUC~=~0.989), indicating strong in-sample discriminatory power}{figure.caption.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-B}}Temporal Generalisation Failure}{3}{subsection.5.2}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Calibration curve for XGBoost predicted probabilities. Mean predicted probabilities closely track observed re-election frequencies, indicating well-calibrated predictions across the full range.}}{3}{figure.caption.4}\protected@file@percent }
 \newlabel{fig:calibration}{{2}{3}{Calibration curve for XGBoost predicted probabilities. Mean predicted probabilities closely track observed re-election frequencies, indicating well-calibrated predictions across the full range}{figure.caption.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-B}}Temporal Generalisation Failure}{3}{subsection.5.2}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {III}{\ignorespaces Rolling-Window Test Accuracies by Election Year}}{3}{table.caption.5}\protected@file@percent }
-\newlabel{tab:rolling}{{III}{3}{Rolling-Window Test Accuracies by Election Year}{table.caption.5}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-C}}Feature Importance and SHAP Analysis}{3}{subsection.5.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {III}{\ignorespaces Rolling-Window Test Accuracies by Election Year}}{4}{table.caption.5}\protected@file@percent }
+\newlabel{tab:rolling}{{III}{4}{Rolling-Window Test Accuracies by Election Year}{table.caption.5}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Rolling-window test accuracy by election year. At each year, the model is trained on all preceding election cycles and evaluated on that year alone. The dashed reference lines mark random-guess performance (0.5) and the 2016 electoral transition. Performance is consistently near or below random, with no evidence of systematic improvement over time.}}{4}{figure.caption.6}\protected@file@percent }
 \newlabel{fig:rolling}{{3}{4}{Rolling-window test accuracy by election year. At each year, the model is trained on all preceding election cycles and evaluated on that year alone. The dashed reference lines mark random-guess performance (0.5) and the 2016 electoral transition. Performance is consistently near or below random, with no evidence of systematic improvement over time}{figure.caption.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-C}}Feature Importance and SHAP Analysis}{4}{subsection.5.3}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {IV}{\ignorespaces Mean Absolute SHAP Values: Top 15 Features}}{4}{table.caption.7}\protected@file@percent }
 \newlabel{tab:shap_importance}{{IV}{4}{Mean Absolute SHAP Values: Top 15 Features}{table.caption.7}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-D}}Regression Discontinuity: A Virtuous Cycle}{4}{subsection.5.4}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Mean absolute SHAP values from the full-data model. The dynasty--IRA interaction and public welfare spending growth are the dominant predictors. Note that \texttt  {delta\_pubwelf} in the figure corresponds to $\Delta $pubwelf in the text.}}{4}{figure.caption.8}\protected@file@percent }
 \newlabel{fig:shapbar}{{4}{4}{Mean absolute SHAP values from the full-data model. The dynasty--IRA interaction and public welfare spending growth are the dominant predictors. Note that \texttt {delta\_pubwelf} in the figure corresponds to $\Delta $pubwelf in the text}{figure.caption.8}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Partial dependence plots for education spending growth (left) and health spending growth (right). Both relationships are positive and exhibit saturation at higher growth rates, suggesting diminishing electoral returns to fiscal effort.}}{4}{figure.caption.9}\protected@file@percent }
-\newlabel{fig:pdp}{{5}{4}{Partial dependence plots for education spending growth (left) and health spending growth (right). Both relationships are positive and exhibit saturation at higher growth rates, suggesting diminishing electoral returns to fiscal effort}{figure.caption.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-D}}Regression Discontinuity: A Virtuous Cycle}{4}{subsection.5.4}\protected@file@percent }
 \citation{mccrary2008manipulation}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Partial dependence plots for education spending growth (left) and health spending growth (right). Both relationships are positive and exhibit saturation at higher growth rates, suggesting diminishing electoral returns to fiscal effort.}}{5}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:pdp}{{5}{5}{Partial dependence plots for education spending growth (left) and health spending growth (right). Both relationships are positive and exhibit saturation at higher growth rates, suggesting diminishing electoral returns to fiscal effort}{figure.caption.9}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Pairwise correlation heatmap. Re-election (won) is positively associated with health and education spending growth and negatively associated with IRA share, consistent with voters rewarding fiscal effort and penalising transfer dependence.}}{5}{figure.caption.10}\protected@file@percent }
 \newlabel{fig:corr}{{6}{5}{Pairwise correlation heatmap. Re-election (won) is positively associated with health and education spending growth and negatively associated with IRA share, consistent with voters rewarding fiscal effort and penalising transfer dependence}{figure.caption.10}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {V}{\ignorespaces RDD Estimates: Health Spending Growth and IRA Share}}{5}{table.caption.11}\protected@file@percent }
 \newlabel{tab:rdd}{{V}{5}{RDD Estimates: Health Spending Growth and IRA Share}{table.caption.11}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-E}}Validity of the Regression Discontinuity Design}{5}{subsection.5.5}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Regression discontinuity plot at the 5\% bandwidth. A visible jump at the vote-margin threshold (0.0) indicates a positive causal effect of electoral victory on subsequent health spending growth.}}{5}{figure.caption.12}\protected@file@percent }
 \newlabel{fig:rdd_plot}{{7}{5}{Regression discontinuity plot at the 5\% bandwidth. A visible jump at the vote-margin threshold (0.0) indicates a positive causal effect of electoral victory on subsequent health spending growth}{figure.caption.12}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Sensitivity of the RDD estimate for health spending growth to bandwidth selection. The estimated treatment effect remains positive across all bandwidths from 0.03 to 0.07, though statistical significance is achieved only at the 0.05 threshold.}}{5}{figure.caption.13}\protected@file@percent }
 \newlabel{fig:rdd_sensitivity_health}{{8}{5}{Sensitivity of the RDD estimate for health spending growth to bandwidth selection. The estimated treatment effect remains positive across all bandwidths from 0.03 to 0.07, though statistical significance is achieved only at the 0.05 threshold}{figure.caption.13}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {VI}Discussion}{5}{section.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VI-A}}Temporal Instability as the Central Finding}{5}{subsection.6.1}\protected@file@percent }
 \citation{curato2016penal,mendoza2016political}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-E}}Validity of the Regression Discontinuity Design}{6}{subsection.5.5}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces McCrary density test of the incumbent vote margin. The vertical dashed line marks the 50\% electoral threshold. The distribution is smooth and continuous at the cutoff ($\hat  {\theta } = -0.0122$, $p = 0.884$), consistent with the absence of systematic vote-margin manipulation. The x-axis spans $-0.25$ to $0.5$ because no observations fall below $-0.25$.}}{6}{figure.caption.14}\protected@file@percent }
 \newlabel{fig:mccrary}{{9}{6}{McCrary density test of the incumbent vote margin. The vertical dashed line marks the 50\% electoral threshold. The distribution is smooth and continuous at the cutoff ($\hat {\theta } = -0.0122$, $p = 0.884$), consistent with the absence of systematic vote-margin manipulation. The x-axis spans $-0.25$ to $0.5$ because no observations fall below $-0.25$}{figure.caption.14}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {VI}Discussion}{6}{section.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VI-A}}Temporal Instability as the Central Finding}{6}{subsection.6.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VI-B}}Synthesising ML and RDD: A Virtuous Cycle}{6}{subsection.6.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VI-C}}Policy Implications}{6}{subsection.6.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {VII}Limitations}{6}{section.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {VIII}Conclusion}{6}{section.8}\protected@file@percent }
 \bibcite{stokes2005perverse}{1}
 \bibcite{hicken2011clientelism}{2}
 \bibcite{panao2020philippine}{3}
@@ -73,6 +72,7 @@
 \bibcite{pcij2025dynasties}{8}
 \bibcite{curato2016penal}{9}
 \bibcite{mendoza2016political}{10}
+\@writefile{toc}{\contentsline {section}{\numberline {VIII}Conclusion}{7}{section.8}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{References}{7}{section*.17}\protected@file@percent }
 \newlabel{LastPage}{{VIII}{7}{Use of Generative AI}{page.7}{}}
 \gdef\lastpage@lastpage{7}
