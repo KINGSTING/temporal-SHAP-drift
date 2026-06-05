@@ -1,20 +1,12 @@
 import pandas as pd
 import numpy as np
-np.bool = np.bool_
-np.int = np.int_
-np.float = np.float_
-
 import re
 from scipy.interpolate import interp1d
-from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
 import xgboost as xgb
-import shap
 import matplotlib.pyplot as plt
 
-# ------------------------------------------------------------
 # Helper: clean LGU names
-# ------------------------------------------------------------
 def clean_lgu_name(name):
     if pd.isna(name):
         return ''
@@ -28,7 +20,7 @@ def clean_lgu_name(name):
     return name
 
 # ------------------------------------------------------------
-# 1. Load spending panel (full_panel_all_sectors.csv)
+# Load spending panel (full_panel_all_sectors.csv)
 # ------------------------------------------------------------
 spending = pd.read_csv('../data/full_panel_all_sectors.csv')
 print("Spending panel shape:", spending.shape)
@@ -41,7 +33,7 @@ pubwelf_pre = 'pubwelf_mn_pre3'
 pubwelf_post = 'pubwelf_mn_post3'
 
 # ------------------------------------------------------------
-# 2. Load population data (interpolated)
+# Load population data (interpolated)
 # ------------------------------------------------------------
 def load_population():
     df1 = pd.read_excel('../data/2024_T1_1.xlsx', header=None)
@@ -96,7 +88,7 @@ pop_long = load_population()
 print(f"Population data: {pop_long['LGU_clean'].nunique()} LGUs, years {pop_long['year'].min()}-{pop_long['year'].max()}")
 
 # ------------------------------------------------------------
-# 3. Merge population and compute per capita growth rates
+# Merge population and compute per capita growth rates
 # ------------------------------------------------------------
 spending['LGU_clean'] = spending['LGU_clean'].apply(clean_lgu_name)
 pop_long.rename(columns={'year': 'election_year'}, inplace=True)
@@ -123,7 +115,7 @@ spending['delta_educ'] = spending['delta_educ'].clip(-0.9, 5)
 spending['delta_pubwelf'] = spending['delta_pubwelf'].clip(-0.9, 5)
 
 # ------------------------------------------------------------
-# 4. Compute re‑election target using election data
+# Compute re‑election target using election data
 # ------------------------------------------------------------
 election = pd.read_excel('../data/election_data.xlsx')
 election['LGU_clean'] = election['city'].apply(clean_lgu_name)
@@ -146,10 +138,10 @@ spending = spending.dropna(subset=['reelected', 'next_winner'])
 print(f"Spending after adding reelected: {len(spending)} rows")
 
 # ------------------------------------------------------------
-# 5. Prepare feature dataset
+# Prepare feature dataset
 # ------------------------------------------------------------
 df_model = spending[['LGU_clean', 'election_year', 'delta_health', 'delta_educ', 'delta_pubwelf',
-                     'local_rev_mn', 'enc_gol', 'dynasty', 'income_class', 'region', 'reelected', 'ira_share']].copy()
+                     'local_rev_mn', 'enc_gol', 'dynasty', 'region', 'reelected', 'ira_share']].copy()
 df_model.rename(columns={'reelected': 'won', 'local_rev_mn': 'local_rev_pc'}, inplace=True)
 df_model = df_model.drop_duplicates(subset=['LGU_clean', 'election_year'])
 
@@ -163,90 +155,55 @@ print(f"Final dataset: {df_model.shape[0]} observations")
 print(df_model['won'].value_counts())
 
 # ------------------------------------------------------------
-# 6. Feature engineering
+# Feature engineering (one‑hot encode region)
 # ------------------------------------------------------------
-feature_cols = ['delta_health', 'delta_educ', 'delta_pubwelf', 'local_rev_pc', 'enc_gol', 'dynasty', 'prev_margin', 'ira_share', 'income_class', 'region']
+feature_cols = ['delta_health', 'delta_educ', 'delta_pubwelf', 'local_rev_pc', 'enc_gol', 'dynasty', 'prev_margin', 'ira_share', 'region']
 X_raw = df_model[feature_cols].copy()
 y = df_model['won'].values
 
 encoder = OneHotEncoder(sparse_output=False, handle_unknown='ignore')
-X_cat = encoder.fit_transform(X_raw[['income_class', 'region']])
-X_cont = X_raw[['delta_health', 'delta_educ', 'delta_pubwelf', 'local_rev_pc', 'enc_gol', 'dynasty', 'prev_margin', 'ira_share']].values
+X_cat = encoder.fit_transform(X_raw[['region']])
+X_cont = X_raw.drop(columns=['region']).values
 X = np.hstack([X_cont, X_cat])
-feature_names = ['delta_health', 'delta_educ', 'delta_pubwelf', 'local_rev_pc', 'enc_gol', 'dynasty', 'prev_margin', 'ira_share'] + list(encoder.get_feature_names_out(['income_class', 'region']))
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
 
 # ------------------------------------------------------------
-# 7. Train XGBoost
+# Rolling‑window temporal validation
 # ------------------------------------------------------------
-model = xgb.XGBClassifier(
-    n_estimators=200,
-    max_depth=5,
-    learning_rate=0.05,
-    subsample=0.8,
-    colsample_bytree=0.8,
-    random_state=42,
-    eval_metric='logloss'
-)
-model.fit(X_train, y_train)
+years = sorted(df_model['election_year'].unique())
+results = []
+
+for i, test_year in enumerate(years):
+    # Only test on years that have at least some training data before
+    if test_year <= years[0]:
+        continue
+    train_mask = df_model['election_year'] < test_year
+    test_mask = df_model['election_year'] == test_year
+    if train_mask.sum() == 0 or test_mask.sum() == 0:
+        continue
+    X_train, X_test = X[train_mask], X[test_mask]
+    y_train, y_test = y[train_mask], y[test_mask]
+    
+    model = xgb.XGBClassifier(n_estimators=200, max_depth=5, learning_rate=0.05,
+                              subsample=0.8, colsample_bytree=0.8, random_state=42,
+                              eval_metric='logloss')
+    model.fit(X_train, y_train)
+    acc = model.score(X_test, y_test)
+    results.append((test_year, acc))
+    print(f"Test year {test_year}: accuracy = {acc:.3f} (n_train={train_mask.sum()}, n_test={test_mask.sum()})")
 
 # ------------------------------------------------------------
-# 8. SHAP explanation
+# Plot and save
 # ------------------------------------------------------------
-print("Computing SHAP values...")
-background = X_train[:200]
-explainer = shap.TreeExplainer(model, background, feature_perturbation='interventional')
-shap_values = explainer.shap_values(X_test)
-
-# Take positive class (class 1)
-if isinstance(shap_values, list):
-    shap_values_pos = shap_values[1]
-else:
-    shap_values_pos = shap_values
-
-# 1. SHAP bar plot (mean absolute SHAP)
-plt.figure(figsize=(12, 10))
-shap.summary_plot(shap_values_pos, X_test, feature_names=feature_names, plot_type="bar", show=False)
-plt.tight_layout()
-plt.savefig('../data/shap_bar.png', bbox_inches='tight', dpi=300)
+years_plot, acc_plot = zip(*results)
+plt.figure(figsize=(8, 5))
+plt.plot(years_plot, acc_plot, 'o-', color='steelblue', linewidth=2, markersize=8)
+plt.axhline(y=0.5, color='red', linestyle='--', label='Random guess (0.5)')
+plt.axvline(x=2016, color='orange', linestyle='--', label='2016 election')
+plt.xlabel('Test election year')
+plt.ylabel('Accuracy')
+plt.title('Rolling‑window temporal validation')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.savefig('../data/rolling_cv.png', dpi=300)
 plt.close()
-print("SHAP bar plot saved.")
-
-# 2. Dependence plot for delta_educ
-try:
-    idx_educ = feature_names.index('delta_educ')
-    plt.figure()
-    shap.dependence_plot(idx_educ, shap_values_pos, X_test, feature_names=feature_names, show=False)
-    plt.tight_layout()
-    plt.savefig('../data/shap_dependence_educ.png', bbox_inches='tight', dpi=300)
-    plt.close()
-    print("SHAP dependence plot for delta_educ saved.")
-except ValueError:
-    print("Feature 'delta_educ' not found in feature_names.")
-
-# 3. Dependence plot for delta_health
-try:
-    idx_health = feature_names.index('delta_health')
-    plt.figure()
-    shap.dependence_plot(idx_health, shap_values_pos, X_test, feature_names=feature_names, show=False)
-    plt.tight_layout()
-    plt.savefig('../data/shap_dependence_health.png', bbox_inches='tight', dpi=300)
-    plt.close()
-    print("SHAP dependence plot for delta_health saved.")
-except ValueError:
-    print("Feature 'delta_health' not found in feature_names.")
-
-# Optional: dependence plot for ira_share
-try:
-    idx_ira = feature_names.index('ira_share')
-    plt.figure()
-    shap.dependence_plot(idx_ira, shap_values_pos, X_test, feature_names=feature_names, show=False)
-    plt.tight_layout()
-    plt.savefig('../data/shap_dependence_ira.png', bbox_inches='tight', dpi=300)
-    plt.close()
-    print("SHAP dependence plot for ira_share saved.")
-except ValueError:
-    print("Feature 'ira_share' not found in feature_names.")
-
-print("All SHAP plots saved to ../data/")
+print("Rolling CV plot saved to ../data/rolling_cv.png")

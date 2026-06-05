@@ -23,16 +23,23 @@ def clean_lgu_name(name):
     return name
 
 # ------------------------------------------------------------
-# Load spending panel
+# Load spending panel (full_panel_all_sectors.csv)
 # ------------------------------------------------------------
 spending = pd.read_csv('../data/full_panel_all_sectors.csv')
 print("Spending panel shape:", spending.shape)
 
 health_pre = 'health_mn_pre3'
 health_post = 'health_mn_post3'
+# For IRA share, we already have the variable 'ira_share' in the panel
+# It is the share of IRA over total income in the election year.
+# But for post-election, we need the average over t+1..t+3? Or just the value at the end of term?
+# To be consistent, we compute the average IRA share over the three years after the election.
+# However, the panel has annual ira_share values. We'll compute the post-election average.
+
+# Also include public welfare if desired, but we'll focus on health and IRA share.
 
 # ------------------------------------------------------------
-# Load population data (interpolated)
+# Load population data (interpolated) – needed for per-capita health
 # ------------------------------------------------------------
 def load_population():
     df1 = pd.read_excel('../data/2024_T1_1.xlsx', header=None)
@@ -54,6 +61,8 @@ def load_population():
     years2 = [2000, 2007, 2010, 2015, 2020, 2024]
     pop2 = df2.iloc[start2:, cols2].copy()
     pop2.columns = ['LGU_raw'] + years2
+    pop2 = pop2.dropna(subset=['LGU_raw'])
+    pop2 = pop2[~pop2['LGU_raw'].str.contains('Region|Note|Source|Continued|Table|Land area|Density|Homeless|Embassies', na=False, case=False)]
     pop2['LGU_raw'] = pop2['LGU_raw'].apply(lambda x: re.sub(r'^\.+', '', str(x)).strip())
     pop2['LGU_clean'] = pop2['LGU_raw'].apply(clean_lgu_name)
     for y in years2:
@@ -85,18 +94,59 @@ pop_long = load_population()
 print(f"Population data: {pop_long['LGU_clean'].nunique()} LGUs, years {pop_long['year'].min()}-{pop_long['year'].max()}")
 
 # ------------------------------------------------------------
-# Merge population and compute per capita health growth
+# Merge population and compute per capita health growth, and post-election IRA average
 # ------------------------------------------------------------
 spending['LGU_clean'] = spending['LGU_clean'].apply(clean_lgu_name)
 pop_long.rename(columns={'year': 'election_year'}, inplace=True)
 spending = spending.merge(pop_long, on=['LGU_clean', 'election_year'], how='left')
 
+# Health per capita
 spending['health_pre_pc'] = (spending[health_pre] * 1_000_000) / spending['population']
 spending['health_post_pc'] = (spending[health_post] * 1_000_000) / spending['population']
 spending = spending.dropna(subset=['health_pre_pc', 'health_post_pc'])
-
 spending['delta_health'] = (spending['health_post_pc'] - spending['health_pre_pc']) / spending['health_pre_pc']
 spending['delta_health'] = spending['delta_health'].clip(-0.9, 5)
+
+# For IRA share, we need to compute the average IRA share in the three years after the election.
+# The spending panel already has 'ira_share' for each fiscal year.
+# We'll group by LGU and election year and compute the mean of ira_share over fiscal_year > election_year and <= election_year+3.
+# First, we need the fiscal DataFrame with ira_share.
+# But we already have the original fiscal_df? We'll recompute from the spending panel? Actually spending panel has only one row per election cycle, not annual.
+# We need the annual fiscal data to compute post-election IRA average.
+# Therefore, we reload the fiscal_df and compute the average.
+
+fiscal_df = pd.read_excel('../data/fiscal_data.xlsx')
+fiscal_df['LGU_clean'] = fiscal_df['LGU name'].apply(clean_lgu_name)
+# Keep needed columns
+fiscal_df = fiscal_df[['LGU_clean', 'year', 'election year', 'share of IRA over total income']].copy()
+fiscal_df.rename(columns={'year': 'fiscal_year', 'election year': 'election_year', 'share of IRA over total income': 'ira_share'}, inplace=True)
+for col in ['fiscal_year', 'election_year', 'ira_share']:
+    fiscal_df[col] = pd.to_numeric(fiscal_df[col], errors='coerce')
+fiscal_df = fiscal_df.dropna()
+
+# For each election cycle (LGU, election_year), compute average ira_share in fiscal_year > election_year and <= election_year+3
+post_ira = []
+for idx, row in spending.iterrows():
+    lgu = row['LGU_clean']
+    elec_yr = row['election_year']
+    mask = (fiscal_df['LGU_clean'] == lgu) & (fiscal_df['fiscal_year'] > elec_yr) & (fiscal_df['fiscal_year'] <= elec_yr + 3)
+    if mask.any():
+        post_ira.append(fiscal_df.loc[mask, 'ira_share'].mean())
+    else:
+        post_ira.append(np.nan)
+spending['ira_post'] = post_ira
+
+# Also pre-election IRA average (for possible control, not used in RDD)
+pre_ira = []
+for idx, row in spending.iterrows():
+    lgu = row['LGU_clean']
+    elec_yr = row['election_year']
+    mask = (fiscal_df['LGU_clean'] == lgu) & (fiscal_df['fiscal_year'] >= elec_yr - 3) & (fiscal_df['fiscal_year'] < elec_yr)
+    if mask.any():
+        pre_ira.append(fiscal_df.loc[mask, 'ira_share'].mean())
+    else:
+        pre_ira.append(np.nan)
+spending['ira_pre'] = pre_ira
 
 # ------------------------------------------------------------
 # Load election data to get incumbent vote share (margin)
@@ -118,22 +168,16 @@ spending = spending.dropna(subset=['margin'])
 # Create win indicator
 spending['win'] = (spending['margin'] > 0).astype(int)
 
-# For RDD, we need the outcome after the election. We already have delta_health.
-rdd_df = spending[['LGU_clean', 'election_year', 'margin', 'win', 'delta_health']].dropna()
+# Keep only rows with valid outcomes
+rdd_df = spending[['LGU_clean', 'election_year', 'margin', 'win', 'delta_health', 'ira_post']].dropna()
 print(f"RDD dataset size: {len(rdd_df)}")
 
 # ------------------------------------------------------------
-# RDD estimation using local linear regression (fixed bandwidth)
+# RDD estimation function (general)
 # ------------------------------------------------------------
-def rdd_estimate(df, outcome, running, bandwidth, kernel='triangular'):
-    """
-    Estimate RDD using local linear regression with given bandwidth.
-    Returns: treatment effect, standard error, and model, and subset.
-    """
+def rdd_estimate(df, outcome, running, bandwidth):
     df_sub = df[np.abs(df[running]) <= bandwidth].copy()
-    # Create polynomial terms
     df_sub['running_centered'] = df_sub[running]
-    # For local linear, we include interaction with treatment
     X = df_sub[['win', 'running_centered']].copy()
     X['win_x_running'] = df_sub['win'] * df_sub['running_centered']
     X = sm.add_constant(X)
@@ -143,78 +187,64 @@ def rdd_estimate(df, outcome, running, bandwidth, kernel='triangular'):
     se = model.bse['win']
     return te, se, model, df_sub
 
-bandwidths = [0.03, 0.05, 0.07]  # 3%, 5%, 7%
-results = {}
-for bw in bandwidths:
-    te, se, model, df_sub = rdd_estimate(rdd_df, 'delta_health', 'margin', bw)
-    results[bw] = {'te': te, 'se': se, 'model': model, 'df': df_sub}
-    print(f"Bandwidth {bw*100}%: ATE = {te:.4f}, SE = {se:.4f}, 95% CI = [{te-1.96*se:.4f}, {te+1.96*se:.4f}]")
+bandwidths = [0.03, 0.05, 0.07]
+outcomes = ['delta_health', 'ira_post']
+outcome_names = ['Health spending growth', 'IRA share (post-election)']
 
-# Use the 5% bandwidth for plotting
-bw_main = 0.05
-te_main, se_main, model_main, df_main = results[bw_main]['te'], results[bw_main]['se'], results[bw_main]['model'], results[bw_main]['df']
+for out_name, out_col in zip(outcome_names, outcomes):
+    print(f"\n=== {out_name} ===")
+    results = {}
+    for bw in bandwidths:
+        te, se, model, df_sub = rdd_estimate(rdd_df, out_col, 'margin', bw)
+        results[bw] = {'te': te, 'se': se, 'model': model, 'df': df_sub}
+        print(f"Bandwidth {bw*100}%: ATE = {te:.4f}, SE = {se:.4f}, 95% CI = [{te-1.96*se:.4f}, {te+1.96*se:.4f}]")
+    
+    # Plot for the 5% bandwidth
+    bw_main = 0.05
+    te_main, se_main, model_main, df_main = results[bw_main]['te'], results[bw_main]['se'], results[bw_main]['model'], results[bw_main]['df']
+    
+    plt.figure(figsize=(8, 6))
+    plt.scatter(df_main['margin'], df_main[out_col], alpha=0.3, color='gray', label='Observations')
+    margin_grid = np.linspace(-bw_main, bw_main, 100)
+    X_left = pd.DataFrame({'const': 1, 'win': 0, 'running_centered': margin_grid, 'win_x_running': 0})
+    y_left = model_main.predict(X_left)
+    X_right = pd.DataFrame({'const': 1, 'win': 1, 'running_centered': margin_grid, 'win_x_running': margin_grid})
+    y_right = model_main.predict(X_right)
+    plt.plot(margin_grid, y_left, 'b-', linewidth=2, label='Losers (fitted)')
+    plt.plot(margin_grid, y_right, 'r-', linewidth=2, label='Winners (fitted)')
+    plt.axvline(x=0, color='black', linestyle='--')
+    plt.xlabel('Margin of victory')
+    plt.ylabel(out_name)
+    plt.title(f'RDD: Effect of Winning on {out_name}')
+    plt.legend()
+    plt.savefig(f'../data/rdd_plot_{out_col}.png', dpi=300)
+    plt.close()
+    print(f"Plot saved to ../data/rdd_plot_{out_col}.png")
+    
+    # Sensitivity plot
+    bws = list(results.keys())
+    tes = [results[bw]['te'] for bw in bws]
+    cis = [1.96 * results[bw]['se'] for bw in bws]
+    plt.figure(figsize=(6, 4))
+    plt.errorbar(bws, tes, yerr=cis, fmt='o-', capsize=5)
+    plt.axhline(y=0, color='red', linestyle='--')
+    plt.xlabel('Bandwidth')
+    plt.ylabel('Estimated treatment effect')
+    plt.title(f'Sensitivity: {out_name}')
+    plt.savefig(f'../data/rdd_sensitivity_{out_col}.png', dpi=300)
+    plt.close()
+    print(f"Sensitivity plot saved to ../data/rdd_sensitivity_{out_col}.png")
+    
+    # Save results to CSV
+    results_df = pd.DataFrame([{
+        'outcome': out_name,
+        'bandwidth': bw,
+        'ate': results[bw]['te'],
+        'se': results[bw]['se'],
+        'ci_lower': results[bw]['te'] - 1.96*results[bw]['se'],
+        'ci_upper': results[bw]['te'] + 1.96*results[bw]['se']
+    } for bw in bandwidths])
+    results_df.to_csv(f'../data/rdd_results_{out_col}.csv', index=False)
+    print(f"Results saved to ../data/rdd_results_{out_col}.csv")
 
-# ------------------------------------------------------------
-# Plot: outcome vs margin with fitted lines
-# ------------------------------------------------------------
-plt.figure(figsize=(8, 6))
-plt.scatter(df_main['margin'], df_main['delta_health'], alpha=0.3, color='gray', label='Observations')
-
-# Generate prediction lines
-margin_grid = np.linspace(-bw_main, bw_main, 100)
-# For left side (win=0)
-X_left = pd.DataFrame({
-    'const': 1,
-    'win': 0,
-    'running_centered': margin_grid,
-    'win_x_running': 0
-})
-y_left = model_main.predict(X_left)
-# For right side (win=1)
-X_right = pd.DataFrame({
-    'const': 1,
-    'win': 1,
-    'running_centered': margin_grid,
-    'win_x_running': margin_grid
-})
-y_right = model_main.predict(X_right)
-
-plt.plot(margin_grid, y_left, 'b-', linewidth=2, label='Losers (fitted)')
-plt.plot(margin_grid, y_right, 'r-', linewidth=2, label='Winners (fitted)')
-plt.axvline(x=0, color='black', linestyle='--', alpha=0.7)
-plt.xlabel('Margin of victory (vote share - 0.5)')
-plt.ylabel('Health spending growth (Δ health per capita)')
-plt.title('Regression Discontinuity: Effect of Winning on Health Spending Growth')
-plt.legend()
-plt.savefig('../data/rdd_plot.png', dpi=300)
-plt.close()
-print("RDD plot saved to ../data/rdd_plot.png")
-
-# ------------------------------------------------------------
-# Sensitivity plot
-# ------------------------------------------------------------
-bws = list(results.keys())
-tes = [results[bw]['te'] for bw in bws]
-cis = [1.96 * results[bw]['se'] for bw in bws]
-
-plt.figure(figsize=(6, 4))
-plt.errorbar(bws, tes, yerr=cis, fmt='o-', capsize=5)
-plt.axhline(y=0, color='red', linestyle='--')
-plt.xlabel('Bandwidth')
-plt.ylabel('Estimated treatment effect')
-plt.title('Sensitivity of RDD estimate to bandwidth choice')
-plt.savefig('../data/rdd_sensitivity.png', dpi=300)
-plt.close()
-print("Sensitivity plot saved to ../data/rdd_sensitivity.png")
-
-# Save results
-results_df = pd.DataFrame([{
-    'bandwidth': bw,
-    'ate': results[bw]['te'],
-    'se': results[bw]['se'],
-    'ci_lower': results[bw]['te'] - 1.96*results[bw]['se'],
-    'ci_upper': results[bw]['te'] + 1.96*results[bw]['se']
-} for bw in bandwidths])
-results_df.to_csv('../data/rdd_results.csv', index=False)
-
-print("\nRDD analysis completed. Results saved to ../data/rdd_results.csv")
+print("\nAll RDD analyses completed.")

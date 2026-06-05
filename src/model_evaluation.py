@@ -18,7 +18,7 @@ import lightgbm as lgb
 import matplotlib.pyplot as plt
 
 # ------------------------------------------------------------
-# Helper: clean LGU names (same as before)
+# Helper: clean LGU names
 # ------------------------------------------------------------
 def clean_lgu_name(name):
     if pd.isna(name):
@@ -38,10 +38,13 @@ def clean_lgu_name(name):
 spending = pd.read_csv('../data/full_panel_all_sectors.csv')
 print("Spending panel shape:", spending.shape)
 
+# Pre/post columns for health, education, public welfare
 health_pre = 'health_mn_pre3'
 health_post = 'health_mn_post3'
 educ_pre = 'educ_mn_pre3'
 educ_post = 'educ_mn_post3'
+pubwelf_pre = 'pubwelf_mn_pre3'
+pubwelf_post = 'pubwelf_mn_post3'
 
 # ------------------------------------------------------------
 # 2. Load population data (interpolated)
@@ -66,6 +69,8 @@ def load_population():
     years2 = [2000, 2007, 2010, 2015, 2020, 2024]
     pop2 = df2.iloc[start2:, cols2].copy()
     pop2.columns = ['LGU_raw'] + years2
+    pop2 = pop2.dropna(subset=['LGU_raw'])
+    pop2 = pop2[~pop2['LGU_raw'].str.contains('Region|Note|Source|Continued|Table|Land area|Density|Homeless|Embassies', na=False, case=False)]
     pop2['LGU_raw'] = pop2['LGU_raw'].apply(lambda x: re.sub(r'^\.+', '', str(x)).strip())
     pop2['LGU_clean'] = pop2['LGU_raw'].apply(clean_lgu_name)
     for y in years2:
@@ -103,16 +108,25 @@ spending['LGU_clean'] = spending['LGU_clean'].apply(clean_lgu_name)
 pop_long.rename(columns={'year': 'election_year'}, inplace=True)
 spending = spending.merge(pop_long, on=['LGU_clean', 'election_year'], how='left')
 
+# Health per capita
 spending['health_pre_pc'] = (spending[health_pre] * 1_000_000) / spending['population']
 spending['health_post_pc'] = (spending[health_post] * 1_000_000) / spending['population']
+# Education per capita
 spending['educ_pre_pc'] = (spending[educ_pre] * 1_000_000) / spending['population']
 spending['educ_post_pc'] = (spending[educ_post] * 1_000_000) / spending['population']
-spending = spending.dropna(subset=['health_pre_pc', 'health_post_pc', 'educ_pre_pc', 'educ_post_pc'])
+# Public welfare per capita
+spending['pubwelf_pre_pc'] = (spending[pubwelf_pre] * 1_000_000) / spending['population']
+spending['pubwelf_post_pc'] = (spending[pubwelf_post] * 1_000_000) / spending['population']
 
+spending = spending.dropna(subset=['health_pre_pc', 'health_post_pc', 'educ_pre_pc', 'educ_post_pc', 'pubwelf_pre_pc', 'pubwelf_post_pc'])
+
+# Growth rates
 spending['delta_health'] = (spending['health_post_pc'] - spending['health_pre_pc']) / spending['health_pre_pc']
 spending['delta_educ'] = (spending['educ_post_pc'] - spending['educ_pre_pc']) / spending['educ_pre_pc']
+spending['delta_pubwelf'] = (spending['pubwelf_post_pc'] - spending['pubwelf_pre_pc']) / spending['pubwelf_pre_pc']
 spending['delta_health'] = spending['delta_health'].clip(-0.9, 5)
 spending['delta_educ'] = spending['delta_educ'].clip(-0.9, 5)
+spending['delta_pubwelf'] = spending['delta_pubwelf'].clip(-0.9, 5)
 
 # ------------------------------------------------------------
 # 4. Compute re‑election target using election data
@@ -138,10 +152,10 @@ spending = spending.dropna(subset=['reelected', 'next_winner'])
 print(f"Spending after adding reelected: {len(spending)} rows")
 
 # ------------------------------------------------------------
-# 5. Prepare feature dataset
+# 5. Prepare feature dataset (include ira_share and delta_pubwelf)
 # ------------------------------------------------------------
-df_model = spending[['LGU_clean', 'election_year', 'delta_health', 'delta_educ',
-                     'local_rev_mn', 'enc_gol', 'dynasty', 'income_class', 'region', 'reelected']].copy()
+df_model = spending[['LGU_clean', 'election_year', 'delta_health', 'delta_educ', 'delta_pubwelf',
+                     'local_rev_mn', 'enc_gol', 'dynasty', 'income_class', 'region', 'reelected', 'ira_share']].copy()
 df_model.rename(columns={'reelected': 'won', 'local_rev_mn': 'local_rev_pc'}, inplace=True)
 df_model = df_model.drop_duplicates(subset=['LGU_clean', 'election_year'])
 
@@ -150,22 +164,22 @@ prev_margin.rename(columns={'year': 'election_year', 'vote_share': 'prev_margin'
 df_model = df_model.merge(prev_margin, on=['LGU_clean', 'election_year'], how='left')
 df_model['prev_margin'] = df_model['prev_margin'].fillna(0.5)
 
-df_model = df_model.dropna(subset=['delta_health', 'delta_educ', 'local_rev_pc', 'enc_gol', 'prev_margin', 'won'])
+df_model = df_model.dropna(subset=['delta_health', 'delta_educ', 'delta_pubwelf', 'local_rev_pc', 'enc_gol', 'prev_margin', 'won', 'ira_share'])
 print(f"Final dataset: {df_model.shape[0]} observations")
 print(df_model['won'].value_counts())
 
 # ------------------------------------------------------------
 # 6. Feature engineering (one‑hot encode categoricals)
 # ------------------------------------------------------------
-feature_cols = ['delta_health', 'delta_educ', 'local_rev_pc', 'enc_gol', 'dynasty', 'prev_margin', 'income_class', 'region']
+feature_cols = ['delta_health', 'delta_educ', 'delta_pubwelf', 'local_rev_pc', 'enc_gol', 'dynasty', 'prev_margin', 'ira_share', 'income_class', 'region']
 X_raw = df_model[feature_cols].copy()
 y = df_model['won'].values
 
 encoder = OneHotEncoder(sparse_output=False, handle_unknown='ignore')
 X_cat = encoder.fit_transform(X_raw[['income_class', 'region']])
-X_cont = X_raw[['delta_health', 'delta_educ', 'local_rev_pc', 'enc_gol', 'dynasty', 'prev_margin']].values
+X_cont = X_raw[['delta_health', 'delta_educ', 'delta_pubwelf', 'local_rev_pc', 'enc_gol', 'dynasty', 'prev_margin', 'ira_share']].values
 X = np.hstack([X_cont, X_cat])
-feature_names = X_raw.columns.tolist()[:-2] + list(encoder.get_feature_names_out(['income_class', 'region']))
+feature_names = ['delta_health', 'delta_educ', 'delta_pubwelf', 'local_rev_pc', 'enc_gol', 'dynasty', 'prev_margin', 'ira_share'] + list(encoder.get_feature_names_out(['income_class', 'region']))
 
 # ------------------------------------------------------------
 # 7. Manual Stratified 5‑fold cross‑validation for XGBoost

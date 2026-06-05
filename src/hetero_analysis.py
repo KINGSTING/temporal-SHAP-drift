@@ -38,6 +38,8 @@ health_pre = 'health_mn_pre3'
 health_post = 'health_mn_post3'
 educ_pre = 'educ_mn_pre3'
 educ_post = 'educ_mn_post3'
+pubwelf_pre = 'pubwelf_mn_pre3'
+pubwelf_post = 'pubwelf_mn_post3'
 
 # ------------------------------------------------------------
 # 2. Load population data (interpolated)
@@ -62,6 +64,8 @@ def load_population():
     years2 = [2000, 2007, 2010, 2015, 2020, 2024]
     pop2 = df2.iloc[start2:, cols2].copy()
     pop2.columns = ['LGU_raw'] + years2
+    pop2 = pop2.dropna(subset=['LGU_raw'])
+    pop2 = pop2[~pop2['LGU_raw'].str.contains('Region|Note|Source|Continued|Table|Land area|Density|Homeless|Embassies', na=False, case=False)]
     pop2['LGU_raw'] = pop2['LGU_raw'].apply(lambda x: re.sub(r'^\.+', '', str(x)).strip())
     pop2['LGU_clean'] = pop2['LGU_raw'].apply(clean_lgu_name)
     for y in years2:
@@ -99,16 +103,25 @@ spending['LGU_clean'] = spending['LGU_clean'].apply(clean_lgu_name)
 pop_long.rename(columns={'year': 'election_year'}, inplace=True)
 spending = spending.merge(pop_long, on=['LGU_clean', 'election_year'], how='left')
 
+# Health per capita
 spending['health_pre_pc'] = (spending[health_pre] * 1_000_000) / spending['population']
 spending['health_post_pc'] = (spending[health_post] * 1_000_000) / spending['population']
+# Education per capita
 spending['educ_pre_pc'] = (spending[educ_pre] * 1_000_000) / spending['population']
 spending['educ_post_pc'] = (spending[educ_post] * 1_000_000) / spending['population']
-spending = spending.dropna(subset=['health_pre_pc', 'health_post_pc', 'educ_pre_pc', 'educ_post_pc'])
+# Public welfare per capita
+spending['pubwelf_pre_pc'] = (spending[pubwelf_pre] * 1_000_000) / spending['population']
+spending['pubwelf_post_pc'] = (spending[pubwelf_post] * 1_000_000) / spending['population']
 
+spending = spending.dropna(subset=['health_pre_pc', 'health_post_pc', 'educ_pre_pc', 'educ_post_pc', 'pubwelf_pre_pc', 'pubwelf_post_pc'])
+
+# Growth rates
 spending['delta_health'] = (spending['health_post_pc'] - spending['health_pre_pc']) / spending['health_pre_pc']
 spending['delta_educ'] = (spending['educ_post_pc'] - spending['educ_pre_pc']) / spending['educ_pre_pc']
+spending['delta_pubwelf'] = (spending['pubwelf_post_pc'] - spending['pubwelf_pre_pc']) / spending['pubwelf_pre_pc']
 spending['delta_health'] = spending['delta_health'].clip(-0.9, 5)
 spending['delta_educ'] = spending['delta_educ'].clip(-0.9, 5)
+spending['delta_pubwelf'] = spending['delta_pubwelf'].clip(-0.9, 5)
 
 # ------------------------------------------------------------
 # 4. Compute re‑election target using election data
@@ -134,10 +147,10 @@ spending = spending.dropna(subset=['reelected', 'next_winner'])
 print(f"Spending after adding reelected: {len(spending)} rows")
 
 # ------------------------------------------------------------
-# 5. Prepare feature dataset
+# 5. Prepare feature dataset (includes ira_share)
 # ------------------------------------------------------------
-df_model = spending[['LGU_clean', 'election_year', 'delta_health', 'delta_educ',
-                     'local_rev_mn', 'enc_gol', 'dynasty', 'income_class', 'region', 'reelected']].copy()
+df_model = spending[['LGU_clean', 'election_year', 'delta_health', 'delta_educ', 'delta_pubwelf',
+                     'local_rev_mn', 'enc_gol', 'dynasty', 'income_class', 'region', 'reelected', 'ira_share']].copy()
 df_model.rename(columns={'reelected': 'won', 'local_rev_mn': 'local_rev_pc'}, inplace=True)
 df_model = df_model.drop_duplicates(subset=['LGU_clean', 'election_year'])
 
@@ -146,7 +159,7 @@ prev_margin.rename(columns={'year': 'election_year', 'vote_share': 'prev_margin'
 df_model = df_model.merge(prev_margin, on=['LGU_clean', 'election_year'], how='left')
 df_model['prev_margin'] = df_model['prev_margin'].fillna(0.5)
 
-df_model = df_model.dropna(subset=['delta_health', 'delta_educ', 'local_rev_pc', 'enc_gol', 'prev_margin', 'won'])
+df_model = df_model.dropna(subset=['delta_health', 'delta_educ', 'delta_pubwelf', 'local_rev_pc', 'enc_gol', 'prev_margin', 'won', 'ira_share'])
 print(f"Final dataset: {df_model.shape[0]} observations")
 print(df_model['won'].value_counts())
 
@@ -157,23 +170,27 @@ print(income_dist)
 income_dist.to_csv('../data/income_class_distribution.csv')
 
 # ------------------------------------------------------------
-# 6. Feature engineering with interaction terms
+# 6. Feature engineering with interaction terms (including new features)
 # ------------------------------------------------------------
 df_model['dynasty_x_delta_educ'] = df_model['dynasty'] * df_model['delta_educ']
 df_model['dynasty_x_delta_health'] = df_model['dynasty'] * df_model['delta_health']
+df_model['dynasty_x_delta_pubwelf'] = df_model['dynasty'] * df_model['delta_pubwelf']
+df_model['dynasty_x_ira'] = df_model['dynasty'] * df_model['ira_share']
 
-feature_cols = ['delta_health', 'delta_educ', 'local_rev_pc', 'enc_gol', 'dynasty', 'prev_margin',
-                'income_class', 'region', 'dynasty_x_delta_educ', 'dynasty_x_delta_health']
+feature_cols = ['delta_health', 'delta_educ', 'delta_pubwelf', 'local_rev_pc', 'enc_gol', 'dynasty', 'prev_margin',
+                'ira_share', 'income_class', 'region',
+                'dynasty_x_delta_educ', 'dynasty_x_delta_health', 'dynasty_x_delta_pubwelf', 'dynasty_x_ira']
 X_raw = df_model[feature_cols].copy()
 y = df_model['won'].values
 
 encoder = OneHotEncoder(sparse_output=False, handle_unknown='ignore')
 X_cat = encoder.fit_transform(X_raw[['income_class', 'region']])
-X_cont = X_raw[['delta_health', 'delta_educ', 'local_rev_pc', 'enc_gol', 'dynasty', 'prev_margin',
-                'dynasty_x_delta_educ', 'dynasty_x_delta_health']].values
+X_cont = X_raw[['delta_health', 'delta_educ', 'delta_pubwelf', 'local_rev_pc', 'enc_gol', 'dynasty', 'prev_margin', 'ira_share',
+                'dynasty_x_delta_educ', 'dynasty_x_delta_health', 'dynasty_x_delta_pubwelf', 'dynasty_x_ira']].values
 X = np.hstack([X_cont, X_cat])
-feature_names = ['delta_health', 'delta_educ', 'local_rev_pc', 'enc_gol', 'dynasty', 'prev_margin',
-                 'dynasty_x_delta_educ', 'dynasty_x_delta_health'] + list(encoder.get_feature_names_out(['income_class', 'region']))
+feature_names = (['delta_health', 'delta_educ', 'delta_pubwelf', 'local_rev_pc', 'enc_gol', 'dynasty', 'prev_margin', 'ira_share',
+                  'dynasty_x_delta_educ', 'dynasty_x_delta_health', 'dynasty_x_delta_pubwelf', 'dynasty_x_ira'] +
+                 list(encoder.get_feature_names_out(['income_class', 'region'])))
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
 
@@ -192,6 +209,7 @@ model.fit(X_train, y_train)
 # ------------------------------------------------------------
 # SHAP analysis (disable additivity check)
 # ------------------------------------------------------------
+print("Computing SHAP values...")
 background = X_train[:200]
 explainer = shap.TreeExplainer(model, background, feature_perturbation='interventional')
 shap_values = explainer.shap_values(X_test, check_additivity=False)
@@ -207,7 +225,7 @@ importance_df = pd.DataFrame({
 }).sort_values('importance', ascending=False)
 importance_df.to_csv('../data/feature_importance_with_interactions.csv', index=False)
 print("\nFeature importance (with interactions) saved to ../data/feature_importance_with_interactions.csv")
-print(importance_df.head(10))
+print(importance_df.head(15))
 
 # Mean absolute SHAP
 shap_importance = pd.DataFrame({
@@ -216,15 +234,23 @@ shap_importance = pd.DataFrame({
 }).sort_values('mean_shap', ascending=False)
 shap_importance.to_csv('../data/mean_shap_values.csv', index=False)
 print("\nMean |SHAP| values saved to ../data/mean_shap_values.csv")
-print(shap_importance.head(10))
+print(shap_importance.head(15))
 
-# Interaction term SHAP
-idx_dyn_health = feature_names.index('dynasty_x_delta_health')
-mean_interaction_shap = np.mean(shap_values_pos[:, idx_dyn_health])
-print(f"\nMean SHAP for dynasty_x_delta_health: {mean_interaction_shap:.4f}")
+# Interaction term SHAP values (for dynasty × health, etc.)
+try:
+    idx_dyn_health = feature_names.index('dynasty_x_delta_health')
+    print(f"\nMean SHAP for dynasty_x_delta_health: {np.mean(shap_values_pos[:, idx_dyn_health]):.4f}")
+except ValueError:
+    print("dynasty_x_delta_health not found")
+
+try:
+    idx_dyn_ira = feature_names.index('dynasty_x_ira')
+    print(f"Mean SHAP for dynasty_x_ira: {np.mean(shap_values_pos[:, idx_dyn_ira]):.4f}")
+except ValueError:
+    print("dynasty_x_ira not found")
 
 # ------------------------------------------------------------
-# Subgroup analysis by income class
+# Subgroup analysis by income class (extract SHAP for key features)
 # ------------------------------------------------------------
 subgroup_results = []
 for inc_class in sorted(df_model['income_class'].unique()):
@@ -233,8 +259,8 @@ for inc_class in sorted(df_model['income_class'].unique()):
     if n >= 30:
         X_sub = subset[feature_cols]
         X_cat_sub = encoder.transform(X_sub[['income_class', 'region']])
-        X_cont_sub = X_sub[['delta_health', 'delta_educ', 'local_rev_pc', 'enc_gol', 'dynasty', 'prev_margin',
-                            'dynasty_x_delta_educ', 'dynasty_x_delta_health']].values
+        X_cont_sub = X_sub[['delta_health', 'delta_educ', 'delta_pubwelf', 'local_rev_pc', 'enc_gol', 'dynasty', 'prev_margin', 'ira_share',
+                            'dynasty_x_delta_educ', 'dynasty_x_delta_health', 'dynasty_x_delta_pubwelf', 'dynasty_x_ira']].values
         X_sub_enc = np.hstack([X_cont_sub, X_cat_sub])
         shap_sub = explainer.shap_values(X_sub_enc, check_additivity=False)
         if isinstance(shap_sub, list):
@@ -243,13 +269,17 @@ for inc_class in sorted(df_model['income_class'].unique()):
             shap_sub_pos = shap_sub
         idx_educ = feature_names.index('delta_educ')
         idx_health = feature_names.index('delta_health')
+        idx_pubwelf = feature_names.index('delta_pubwelf')
         idx_dyn = feature_names.index('dynasty')
+        idx_ira = feature_names.index('ira_share')
         subgroup_results.append({
             'income_class': inc_class,
             'n': n,
             'mean_shap_delta_educ': np.mean(shap_sub_pos[:, idx_educ]),
             'mean_shap_delta_health': np.mean(shap_sub_pos[:, idx_health]),
-            'mean_shap_dynasty': np.mean(shap_sub_pos[:, idx_dyn])
+            'mean_shap_delta_pubwelf': np.mean(shap_sub_pos[:, idx_pubwelf]),
+            'mean_shap_dynasty': np.mean(shap_sub_pos[:, idx_dyn]),
+            'mean_shap_ira_share': np.mean(shap_sub_pos[:, idx_ira])
         })
 subgroup_df = pd.DataFrame(subgroup_results)
 subgroup_df.to_csv('../data/subgroup_shap_by_income.csv', index=False)
