@@ -1,0 +1,26 @@
+feature,importance
+income_class_3,0.0
+region_Davao Region,0.006458507
+region_Mimaropa Region,0.01319164
+prev_margin,0.02034325
+region_MIMAROPA,0.023435531
+region_MIMAROPA Region,0.02670671
+region_Northern Mindanao,0.027622426
+region_Zamboanga Peninsula,0.029706892
+region_Eastern Visayas,0.03044839
+region_CAR,0.031171897
+region_CARAGA,0.032441206
+region_Ilocos Region,0.033970937
+local_rev_pc,0.0403369
+region_Central Visayas,0.041824017
+delta_health,0.042251006
+region_Western Visayas,0.04263046
+enc_gol,0.043228272
+delta_educ,0.046991702
+region_SOCCSKSARGEN,0.049925655
+region_Bicol Region,0.059780072
+region_Central Luzon,0.064006194
+dynasty,0.065499656
+region_CALABARZON,0.06775948
+region_BARMM,0.07075969
+region_Cagayan Valley,0.08950959

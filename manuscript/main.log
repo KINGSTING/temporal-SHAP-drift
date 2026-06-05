@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.3.23)  4 JUN 2026 19:43
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.3.23)  5 JUN 2026 10:17
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**/home/jemarjohn/Documents/Research/mayors-slack-off/main.tex
-(/home/jemarjohn/Documents/Research/mayors-slack-off/main.tex
+**/home/jemarjohn/Documents/Research/mayors-slack-off/manuscript/main.tex
+(/home/jemarjohn/Documents/Research/mayors-slack-off/manuscript/main.tex
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
 (/usr/share/texlive/texmf-dist/tex/latex/ieeetran/IEEEtran.cls
@@ -103,9 +103,7 @@ LaTeX Font Info:    Font shape `OT1/ptm/bx/it' in size <24> not available
 \IEEEPARstartletwidth=\dimen163
 \c@IEEEbiography=\count267
 \@IEEEtranrubishbin=\box52
-)
-** ATTENTION: Overriding command lockouts (line 2).
-(/usr/share/texlive/texmf-dist/tex/latex/cite/cite.sty
+) (/usr/share/texlive/texmf-dist/tex/latex/cite/cite.sty
 LaTeX Info: Redefining \cite on input line 302.
 LaTeX Info: Redefining \nocite on input line 332.
 Package: cite 2015/02/27  v 5.5
@@ -248,10 +246,70 @@ Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
 \@thisruleclass=\count286
 \@lastruleclass=\count287
 \@thisrulewidth=\dimen187
+) (/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
+Package: tabularx 2023/07/08 v2.11c `tabularx' package (DPC)
+ (/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty
+Package: array 2023/10/16 v2.5g Tabular extension package (FMi)
+\col@sep=\dimen188
+\ar@mcellbox=\box55
+\extrarowheight=\dimen189
+\NC@list=\toks24
+\extratabsurround=\skip56
+\backup@length=\skip57
+\ar@cellbox=\box56
+)
+\TX@col@width=\dimen190
+\TX@old@table=\dimen191
+\TX@old@col=\dimen192
+\TX@target=\dimen193
+\TX@delta=\dimen194
+\TX@cols=\count288
+\TX@ftn=\toks25
+) (/usr/share/texlive/texmf-dist/tex/latex/url/url.sty
+\Urlmuskip=\muskip17
+Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
+) (/usr/share/texlive/texmf-dist/tex/latex/float/float.sty
+Package: float 2001/11/08 v1.3d Float enhancements (AL)
+\c@float@type=\count289
+\float@exts=\toks26
+\float@box=\box57
+\@float@everytoks=\toks27
+\@floatcapt=\box58
+) (/usr/share/texlive/texmf-dist/tex/latex/caption/subcaption.sty
+Package: subcaption 2023/07/28 v1.6b Sub-captions (AR)
+ (/usr/share/texlive/texmf-dist/tex/latex/caption/caption.sty
+Package: caption 2023/08/05 v3.6o Customizing captions (AR)
+ (/usr/share/texlive/texmf-dist/tex/latex/caption/caption3.sty
+Package: caption3 2023/07/31 v2.4d caption3 kernel (AR)
+\caption@tempdima=\dimen195
+\captionmargin=\dimen196
+\caption@leftmargin=\dimen197
+\caption@rightmargin=\dimen198
+\caption@width=\dimen199
+\caption@indent=\dimen256
+\caption@parindent=\dimen257
+\caption@hangindent=\dimen258
+Package caption Info: Unknown document class (or package),
+(caption)             standard defaults will be used.
+Package caption Info: \@makecaption = \long macro:#1#2->\ifx \@captype \@IEEEtablestring \footnotesize \bgroup \par \centering \@IEEEtabletopskipstrut {\normalfont \footnotesize #1}\\{\normalfont \footnotesize \scshape #2}\par \addvspace {0.5\baselineskip }\egroup \@IEEEtablecaptionsepspace \else \@IEEEfigurecaptionsepspace \setbox \@tempboxa \hbox {\normalfont \footnotesize {#1.}\nobreakspace \nobreakspace #2}\ifdim \wd \@tempboxa >\hsize \setbox \@tempboxa \hbox {\normalfont \footnotesize {#1.}\nobreakspace \nobreakspace }\parbox [t]{\hsize }{\normalfont \footnotesize \noindent \unhbox \@tempboxa #2}\else \ifCLASSOPTIONconference \hbox to\hsize {\normalfont \footnotesize \hfil \box \@tempboxa \hfil }\else \hbox to\hsize {\normalfont \footnotesize \box \@tempboxa \hfil }\fi \fi \fi  on input line 1175.
+)
+
+Package caption Warning: Unknown document class (or package),
+(caption)                standard defaults will be used.
+See the caption package documentation for explanation.
+
+\c@caption@flags=\count290
+\c@continuedfloat=\count291
+Package caption Info: float package is loaded.
+)
+Package caption Info: New subtype `subfigure' on input line 238.
+\c@subfigure=\count292
+Package caption Info: New subtype `subtable' on input line 238.
+\c@subtable=\count293
 ) (/usr/share/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2024-01-04 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count288
-\l__pdf_internal_box=\box55
+\l__color_backend_stack_int=\count294
+\l__pdf_internal_box=\box59
 ) (./main.aux)
 \openout1 = `main.aux'.
 
@@ -273,57 +331,106 @@ LaTeX Font Info:    ... okay on input line 14.
 -- Lines per column: 56 (exact).
 (/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count289
-\scratchdimen=\dimen188
-\scratchbox=\box56
-\nofMPsegments=\count290
-\nofMParguments=\count291
-\everyMPshowfont=\toks24
-\MPscratchCnt=\count292
-\MPscratchDim=\dimen189
-\MPnumerator=\count293
-\makeMPintoPDFobject=\count294
-\everyMPtoPDFconversion=\toks25
+\scratchcounter=\count295
+\scratchdimen=\dimen259
+\scratchbox=\box60
+\nofMPsegments=\count296
+\nofMParguments=\count297
+\everyMPshowfont=\toks28
+\MPscratchCnt=\count298
+\MPscratchDim=\dimen260
+\MPnumerator=\count299
+\makeMPintoPDFobject=\count300
+\everyMPtoPDFconversion=\toks29
 ) (/usr/share/texlive/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
  (/usr/share/texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
-)) [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}
-
-
-]
-LaTeX Font Info:    Trying to load font information for U+msa on input line 56.
+))
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: End \AtBeginDocument code.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 27.
  (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 56.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 27.
  (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-Underfull \hbox (badness 5696) in paragraph at lines 57--58
-[]\OT1/ptm/b/n/10 Outcomes \OT1/ptm/m/n/10 (post-election av-er-ages over t+1...t+3):
+Underfull \hbox (badness 2478) in paragraph at lines 30--32
+\OT1/ptm/b/n/9 XG-Boost, re-gres-sion dis-con-ti-nu-ity, ac-count-able gov-er-nance,
  []
 
 
-Underfull \hbox (badness 1442) in paragraph at lines 80--81
-[]\OT1/ptm/m/n/10 Statistical sig-nif-i-cance based on CI ex-clud-ing zero,
+Underfull \hbox (badness 6978) in paragraph at lines 63--64
+[]\OT1/ptm/m/n/10 The raw fis-cal data con-tain an-nual LGU records
  []
 
 
-LaTeX Warning: Reference `tab1' on page 2 undefined on input line 84.
-
-<Figure_2.png, id=10, 722.7pt x 402.5439pt>
-File: Figure_2.png Graphic file (type png)
-<use Figure_2.png>
-Package pdftex.def Info: Figure_2.png  used on input line 111.
-(pdftex.def)             Requested size: 252.0pt x 140.36423pt.
-
-Underfull \hbox (badness 3343) in paragraph at lines 129--130
-[]\OT1/ptm/b/n/10 Anti-dynasty leg-is-la-tion \OT1/ptm/m/n/10 (e.g., the pro-posed Anti-
+Overfull \hbox (23.05396pt too wide) in paragraph at lines 73--89
+ [][] 
  []
 
-[2 <./Figure_2.png>]
+[1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}
+
+
+]
+<../data/roc_curve.png, id=15, 462.528pt x 346.896pt>
+File: ../data/roc_curve.png Graphic file (type png)
+<use ../data/roc_curve.png>
+Package pdftex.def Info: ../data/roc_curve.png  used on input line 122.
+(pdftex.def)             Requested size: 226.79846pt x 170.10226pt.
+<../data/correlation_heatmap.png, id=17, 578.16pt x 433.62pt>
+File: ../data/correlation_heatmap.png Graphic file (type png)
+<use ../data/correlation_heatmap.png>
+Package pdftex.def Info: ../data/correlation_heatmap.png  used on input line 132.
+(pdftex.def)             Requested size: 226.79846pt x 170.09697pt.
+
+Underfull \hbox (badness 3364) in paragraph at lines 133--133
+[]\OT1/ptm/m/n/10 Fig. 2: |Cor-re-la-tion heatmap of nu-meric fea-tures with
+ []
+
+<../data/shap_bar.png, id=18, 570.4512pt x 679.0971pt>
+File: ../data/shap_bar.png Graphic file (type png)
+<use ../data/shap_bar.png>
+Package pdftex.def Info: ../data/shap_bar.png  used on input line 142.
+(pdftex.def)             Requested size: 226.79846pt x 269.9968pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [2 <../data/roc_curve.png> <../data/correlation_heatmap.png>]
+<../data/shap_dependence_educ.png, id=25, 507.8172pt x 353.6412pt>
+File: ../data/shap_dependence_educ.png Graphic file (type png)
+<use ../data/shap_dependence_educ.png>
+Package pdftex.def Info: ../data/shap_dependence_educ.png  used on input line 153.
+(pdftex.def)             Requested size: 120.95892pt x 84.23347pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 154--154
+[]\OT1/ptm/m/n/9 (a) |SHAP de-pen-dence for
+ []
+
+<../data/shap_dependence_health.png, id=26, 507.8172pt x 353.6412pt>
+File: ../data/shap_dependence_health.png Graphic file (type png)
+<use ../data/shap_dependence_health.png>
+Package pdftex.def Info: ../data/shap_dependence_health.png  used on input line 159.
+(pdftex.def)             Requested size: 120.95892pt x 84.23347pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 160--160
+[]\OT1/ptm/m/n/9 (b) |SHAP de-pen-dence for
+ []
+
+<../data/rdd_plot.png, id=27, 578.16pt x 433.62pt>
+File: ../data/rdd_plot.png Graphic file (type png)
+<use ../data/rdd_plot.png>
+Package pdftex.def Info: ../data/rdd_plot.png  used on input line 189.
+(pdftex.def)             Requested size: 226.79846pt x 170.09697pt.
+<../data/rdd_sensitivity.png, id=28, 433.62pt x 289.08pt>
+File: ../data/rdd_sensitivity.png Graphic file (type png)
+<use ../data/rdd_sensitivity.png>
+Package pdftex.def Info: ../data/rdd_sensitivity.png  used on input line 196.
+(pdftex.def)             Requested size: 226.79846pt x 151.20024pt.
+[3 <../data/shap_bar.png> <../data/shap_dependence_educ.png> <../data/shap_dependence_health.png> <../data/rdd_plot.png> <../data/rdd_sensitivity.png>]
 
 ** Conference Paper **
 Before submitting the final camera ready copy, remember to:
@@ -335,29 +442,27 @@ Before submitting the final camera ready copy, remember to:
  uses only Type 1 fonts and that every step in the generation
  process uses the appropriate paper size.
 
-[3] (./main.aux)
+[4
+
+] (./main.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
  ***********
-
-
-LaTeX Warning: There were undefined references.
-
  ) 
 Here is how much of TeX's memory you used:
- 4275 strings out of 474222
- 66664 string characters out of 5748733
- 1943975 words of memory out of 5000000
- 26482 multiletter control sequences out of 15000+600000
- 601575 words of font info for 118 fonts, out of 8000000 for 9000
+ 6052 strings out of 474222
+ 100224 string characters out of 5748733
+ 1941975 words of memory out of 5000000
+ 28237 multiletter control sequences out of 15000+600000
+ 599793 words of font info for 116 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 57i,16n,65p,1114b,317s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (3 pages, 148355 bytes).
+ 67i,9n,77p,1545b,473s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on main.pdf (4 pages, 1081352 bytes).
 PDF statistics:
- 68 PDF objects out of 1000 (max. 8388607)
- 40 compressed objects within 1 object stream
+ 88 PDF objects out of 1000 (max. 8388607)
+ 45 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 6 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 36 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -1,6 +1,4 @@
 \documentclass[conference]{IEEEtran}
-\IEEEoverridecommandlockouts
-% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
 \usepackage{cite}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{algorithmic}
@@ -8,152 +6,231 @@
 \usepackage{textcomp}
 \usepackage{xcolor}
 \usepackage{booktabs}
-\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
-    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\usepackage{tabularx}
+\usepackage{url}
+\usepackage{float}
+\usepackage{subcaption}
 
 \begin{document}
 
-\title{Generative Counterfactuals for Policy Analysis: Do Political Dynasties Reallocate Local Spending Toward Clientelism? Evidence from Philippine LGUs\\
-}
+\title{Do Voters Reward Fiscal Performance?\\ 
+\Large A Machine Learning and Causal Analysis of Philippine Gubernatorial Elections}
 
 \author{\IEEEauthorblockN{Jemar John J. Lumingkit}
-\IEEEauthorblockA{\textit{Mindanao State University -- Iligan Institute of Technology} \\
-Iligan City, Philippines \\
-jemar.lumingkit@g.msuiit.edu.ph}
+\IEEEauthorblockA{\textit{Mindanao State University---Iligan Institute of Technology} \\
+Email: jemar.lumingkit@g.msuiit.edu.ph}
 }
 
 \maketitle
 
 \begin{abstract}
-Political dynasties are pervasive in the Philippines, but their effect on local budget allocation remains contested. Using a 30-year panel of 227 provinces and cities (1992–2022), we train a conditional Generative Adversarial Network (CTGAN) to learn the joint distribution of fiscal variables, political competition, and dynasty status. For each dynasty-controlled LGU-year, we generate a counterfactual ``non-dynasty'' twin with identical income class, region, and other confounders. Comparing real dynasty spending with synthetic non-dynasty spending reveals a systematic reallocation: dynasties spend significantly less on health and education (public goods) and significantly more on public welfare, social services, and housing (clientelistic, targetable goods). These findings support the view that dynasties use local budgets to build patronage networks rather than invest in long-term human capital. The study introduces generative AI as a novel tool for evidence-based governance and directly supports SDGs 3, 4, 10, and 16.
+Do voters reward governors for better health and education spending, increased local revenue, and lower IRA dependence? Using a panel of Philippine provinces (1992–2022) and an XGBoost classifier, we predict gubernatorial re‑election based on fiscal performance, political competition, dynasty status, and previous vote margin. The model achieves 87.5\% accuracy and an ROC‑AUC of 0.955, demonstrating that fiscal indicators strongly separate winners from losers. Feature importance reveals that education spending growth, health spending growth, local revenue per capita, and dynasty status are among the top predictors, after regional fixed effects. However, a temporal validation (training on pre‑2016 data and testing on 2019–2022) shows poor generalisation (accuracy 44.3\%), indicating that electoral dynamics change over time. To address causality, we implement a regression discontinuity design (RDD) on close elections (margin $<$5\%). The RDD estimates a positive effect of winning on health spending growth (ATE = 1.50, 95\% CI [0.07, 2.94]), suggesting a causal link, though the effect is sensitive to bandwidth choice. The results provide evidence that voters reward visible service delivery and fiscal effort, but the temporal instability and weak causal evidence warn against strong claims. The study aligns with SDG 16 (accountable governance) and SDG 4 (quality education).
 \end{abstract}
 
 \begin{IEEEkeywords}
-Political dynasties, clientelism, counterfactual analysis, generative AI, CTGAN, Philippine local government, SDG 16
+Fiscal performance, gubernatorial elections, XGBoost, regression discontinuity, accountable governance, Philippines.
 \end{IEEEkeywords}
 
 \section{Introduction}
-The 1991 Local Government Code devolved substantial resources and responsibilities to Philippine local government units (LGUs). However, a persistent feature of Philippine politics is the prevalence of political dynasties – families that hold elective office across generations. While dynasties are widely criticized, empirical evidence on how they affect budget allocation remains mixed and often correlational.
 
-This study asks: Do political dynasties shift spending away from broad public goods (health, education) and toward targetable, clientelistic goods (welfare, housing, social services)? We answer using a novel generative counterfactual approach. We train a conditional GAN (CTGAN) on 30 years of LGU panel data, then for each dynasty-controlled LGU-year we generate a ``twin'' LGU-year where dynasty status is flipped to zero, holding all other features (income class, region, political competition) constant. Comparing real and synthetic spending reveals the causal-style effect of dynasty status.
+The 1991 Local Government Code devolved substantial responsibilities to Philippine local governments, giving governors significant control over health, education, and infrastructure budgets. In theory, voters can hold incumbents accountable by rewarding those who deliver better services and penalizing those who do not. Yet empirical evidence on whether fiscal performance actually influences re‑election is limited, especially using modern machine learning methods.
 
-Our results show that dynasties significantly reduce health and education spending but increase public welfare, social services, and housing spending – a pattern consistent with clientelistic vote-buying. This is the first application of generative counterfactuals to Philippine local governance and demonstrates the potential of AI for policy analysis.
-
-\section{Literature Review}
-\subsection{Political Dynasties and Local Governance}
-Political dynasties are defined as families that control elective positions across multiple terms or offices. In the Philippines, Mendoza et al. \cite{mendoza2012} documented that dynasties are associated with higher poverty incidence. Capuno \cite{capuno2019} found that dynasties reduce local revenue collection but did not detect significant effects on spending levels. However, these studies rely on linear regression or simple RDD, which may miss non-linear reallocation across sectors.
-
-\subsection{Clientelism and Budget Allocation}
-Clientelism is a political strategy where politicians exchange targeted, divisible benefits for electoral support. In local government, clientelistic spending favors subsidies, housing, small infrastructure, and welfare – goods that can be attributed to the incumbent and distributed selectively. In contrast, public goods like health and education benefit everyone and yield less personal credit. Cross-country evidence shows that clientelistic politicians shift budgets away from health and education.
-
-\subsection{Generative AI for Counterfactual Policy Analysis}
-Generative Adversarial Networks (GANs) have been used to create synthetic data and counterfactual examples in medicine and economics but rarely in political science. CTGAN \cite{xu2019} extends GANs to tabular data with mixed continuous/categorical variables. By conditioning on treatment status, we can generate realistic counterfactual samples and estimate treatment effects without imposing linear functional forms. This study is the first to apply CTGAN to Philippine LGU data.
-
-\section{Data}
-We use the UP CIDS Philippine Local Government Interactive Dataset \cite{upcids2024}, which combines COMELEC election results and BLGF fiscal data from 1992 to 2022. The panel covers 227 LGUs (81 provinces and 146 cities) with 31 fiscal years and 11 election cycles. After cleaning, we retain 715 LGU-election cycles (396 dynasty, 319 non-dynasty). Variables include:
-
+This study uses an XGBoost classifier to predict whether an incumbent governor wins re‑election based on:
 \begin{itemize}
-    \item \textbf{Treatment:} \textit{dynasty = 1} if incumbent shares surname with previous incumbent.
-    \item \textbf{Outcomes} (post-election averages over t+1…t+3): health, education, public welfare, social services, economic development, labor, housing, government administration spending (million PHP).
-    \item \textbf{Confounders} (used for conditioning): IRA share, local revenue per capita, effective number of candidates (ENC, Golosov), income class (1-6), region (17), election year.
+\item Growth in health and education spending per capita
+\item Local revenue per capita
+\item Political competition (effective number of candidates, ENC)
+\item Dynasty status (whether the incumbent shares a surname with the previous governor)
+\item Previous election margin
+\item Income class and region
 \end{itemize}
+
+We also implement a regression discontinuity design (RDD) on close elections to estimate the causal effect of winning on subsequent health spending growth.
+
+\section{Data and Variables}
+
+\subsection{Data Sources}
+We combine two primary datasets:
+\begin{itemize}
+\item \textbf{Fiscal panel} (1992–2022): 227 LGUs, annual spending on health, education, local revenue, IRA share, ENC, dynasty indicator (constructed from incumbent surnames).
+\item \textbf{Election results} (1992–2022): gubernatorial vote shares, winners, and turnout.
+\end{itemize}
+Population data from the Philippine Statistics Authority (censuses 1995–2024) are interpolated to yearly estimates to compute per‑capita spending.
+
+The fiscal and election data are taken from the Philippine Local Government Interactive Dataset \cite{b5}.
+
+\subsection{Data Cleaning and Preparation}
+The raw fiscal data contain annual LGU records (1992–2022) with spending on health, education, public welfare, etc. For each LGU and election year, we identify the start of a term (fiscal year equals election year) and retain the incumbent governor’s name, fiscal variables (IRA share, local revenue, ENC), and pre‑term spending averages (three years before the election). Using the election file, we compute vote shares, winners, and the candidate’s name. We then merge the two datasets on LGU and election year to obtain, for each term, the incumbent’s electoral outcome.
+
+To construct the dynasty indicator, we compare the incumbent’s surname with the previous term’s incumbent (same LGU) and assign 1 if they match. Population data from five censuses (1995–2024) are interpolated linearly to obtain yearly estimates for 1992–2022. Per‑capita spending is computed by dividing nominal spending (converted from millions to pesos) by the interpolated population. Growth rates for health, education, and local revenue are calculated as \((\text{post} - \text{pre}) / \text{pre}\), clipped to \([-0.9, 5]\) to avoid extreme outliers. Finally, we keep only terms where the incumbent ran for re‑election (i.e., the winner of term \(t\) also contested term \(t+3\)) and create the target variable `won` (1 if the same person won the next election, 0 otherwise). Missing previous vote margins are filled with 0.5 (neutral). The final dataset contains 1,682 observations (787 re‑elected, 895 defeated).
+
+\subsection{Variables}
+For each incumbent who ran for re‑election, we compute:
+
+\begin{table}[H]
+\caption{Features and target}
+\centering
+\begin{tabular}{ll}
+\toprule
+Feature & Description \\
+\midrule
+$\Delta$health & (health spending per capita in post‑term years) / (pre‑term) – 1 \\
+$\Delta$educ   & same for education \\
+$\Delta$local\_rev & same for local revenue per capita \\
+enc\_gol & effective number of candidates (political competition) \\
+dynasty & 1 if incumbent shares surname with previous governor, else 0 \\
+prev\_margin & incumbent’s vote share in the previous election \\
+income\_class & 1 (richest) to 6 (poorest) \\
+region & 17 regions (one‑hot encoded) \\
+\midrule
+\textbf{Target} & \textbf{won} = 1 if re‑elected, 0 otherwise \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \section{Methodology}
-\subsection{Conditional GAN (CTGAN)}
-CTGAN \cite{xu2019} learns the joint distribution of tabular data using a generator and discriminator. The generator creates synthetic rows; the discriminator distinguishes real from synthetic. After training, we can condition generation on specific variable values (e.g., \textit{dynasty=0}, same income class and region). We train CTGAN with 500 epochs, batch size 500, using the sdv implementation.
 
-\subsection{Counterfactual Generation}
-For each dynasty LGU-year observation (N=396):
-\begin{enumerate}
-    \item Extract its \textit{income\_class} and \textit{region}.
-    \item Generate 20 synthetic rows conditioned on \textit{dynasty=0}, that income class, that region.
-    \item Average the 20 synthetic rows to obtain one counterfactual spending vector.
-\end{enumerate}
+\subsection{Predictive Model (XGBoost)}
+We use an \textbf{XGBoost classifier} with 200 trees, maximum depth 5, learning rate 0.05, and subsample/colsample by tree 0.8. The model is trained on 80\% of the data (stratified by the target) and evaluated on the remaining 20\%. Feature importance is extracted using SHAP (SHapley Additive exPlanations) values \cite{b9}.
 
-We avoid per-row conditional generation by first generating a large synthetic dataset (500k rows) and then sampling matches. This is computationally efficient and reduces sampling noise.
+\subsection{Temporal Validation}
+We perform a temporal robustness check: train on elections up to 2016, test on 2019–2022.
 
-\subsection{Statistical Inference}
-For each spending sector, we compute the paired difference between counterfactual and real spending. We report:
-\begin{itemize}
-    \item Mean difference and 95\% bootstrap confidence interval (1000 resamples).
-    \item Cohen’s \textit{d} effect size.
-    \item Statistical significance based on CI excluding zero, with FDR correction for multiple sectors (Benjamini-Hochberg, $\alpha=0.05$).
-\end{itemize}
+\subsection{Regression Discontinuity Design (RDD)}
+To address endogeneity, we exploit close elections. The running variable is the incumbent’s vote margin (vote share – 0.5). The treatment is winning (margin > 0). The outcome is health spending growth after the term. We use local linear regression with a triangular kernel and bandwidths of 3\%, 5\%, and 7\% of the margin. The 5\% bandwidth is the primary specification.
 
 \section{Results}
-Table \ref{tab1} summarizes the counterfactual comparisons. Figure \ref{fig2} illustrates the GAN counterfactual effect of removing a political dynasty.
 
-\begin{table*}[htbp]
-\caption{GAN Counterfactual Results: Dynasty vs. Non-Dynasty Spending}
-\begin{center}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lrrrrrl}
-\toprule
-\textbf{Sector} & \textbf{Real (Dynasty) Mean} & \textbf{CF (Non-Dynasty) Mean} & \textbf{Difference (CF – Real)} & \textbf{95\% CI} & \textbf{Cohen’s d} & \textbf{Significant} \\
-\midrule
-Health & 156.82 & 222.26 & +65.44 & [49.38, 82.02] & 0.53 & $\checkmark$ REDUCE \\
-Education & 27.47 & 39.80 & +12.33 & [6.88, 16.18] & 0.37 & $\checkmark$ REDUCE \\
-Public welfare & 299.22 & 139.90 & --159.33 & [--190.91, --128.54] & --0.74 & $\checkmark$ INCREASE \\
-Social services & 45.30 & 23.64 & --21.66 & [--29.58, --15.90] & --0.41 & $\checkmark$ INCREASE \\
-Economic development & 191.76 & 200.80 & +9.04 & [--13.85, 29.73] & 0.06 & No \\
-Labor & 0.71 & 0.83 & +0.12 & [--0.20, 0.35] & 0.06 & No \\
-Housing & 8.19 & 2.82 & --5.36 & [--8.10, --3.10] & --0.29 & $\checkmark$ INCREASE \\
-Government (admin) & 375.88 & 452.48 & +76.60 & [37.95, 106.20] & 0.32 & $\checkmark$ REDUCE \\
-\bottomrule
-\end{tabular}%
-}
-\end{center}
-\vspace{2pt}
-\small\textit{Note:} Positive difference means non-dynasty spends more; negative difference means dynasty spends more. All significant effects survive FDR correction ($\alpha=0.05$).
-\end{table*}
+\subsection{Model Performance (Random Split)}
+The main model (random split) achieves:
+\begin{itemize}
+\item \textbf{Accuracy:} 87.5\%
+\item \textbf{ROC‑AUC:} 0.955
+\item \textbf{Confusion matrix:}
+  \begin{itemize}
+    \item True positives: 137
+    \item False positives: 21
+    \item True negatives: 158
+    \item False negatives: 21
+  \end{itemize}
+\item \textbf{Precision:} 0.867, \textbf{Recall:} 0.867, \textbf{F1:} 0.867
+\end{itemize}
+The ROC curve (Fig. 1) confirms excellent separation.
 
-\begin{figure}[htbp]
-\centerline{\includegraphics[width=\columnwidth]{Figure_2.png}}
-\caption{GAN Counterfactual Effect of Removing a Political Dynasty on Local Spending Differences.}
-\label{fig2}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\columnwidth]{../data/roc_curve.png}
+\caption{ROC curve (random split).}
+\label{fig:roc}
 \end{figure}
 
-\textbf{Interpretation:} Dynasties significantly reduce spending on health and education – classic public goods. They significantly increase spending on public welfare, social services, and housing – goods that can be targeted to individuals or small groups. Government administration spending is also reduced (counterfactual non-dynasty spends more), possibly reflecting less bureaucracy or lower administrative capacity in dynasty LGUs.
+\subsection{Correlation Analysis}
+Figure 2 shows the correlation between numeric features and the target. Health spending growth, education spending growth, and local revenue per capita are positively correlated with re‑election.
 
-\textbf{This pattern is consistent with clientelism:} dynasties allocate resources toward visible, distributable benefits that can be used to reward supporters and attract votes, while underinvesting in broad public services.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\columnwidth]{../data/correlation_heatmap.png}
+\caption{Correlation heatmap of numeric features with re‑election.}
+\label{fig:corr}
+\end{figure}
+
+\subsection{Feature Importance (SHAP)}
+Figure 3 shows the SHAP bar plot (mean absolute SHAP values). Positive SHAP values indicate that higher feature values increase the probability of re‑election, while negative values decrease it. Education spending growth (\(\Delta\)educ), political competition (enc\_gol), and health spending growth (\(\Delta\)health) are the most important numeric predictors after region fixed effects. Dynasty also appears with a positive contribution, confirming that name recognition helps re‑election.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\columnwidth]{../data/shap_bar.png}
+\caption{SHAP bar plot (mean absolute SHAP values).}
+\label{fig:shap_bar}
+\end{figure}
+
+\subsection{SHAP Dependence Analysis}
+Figures 4a and 4b show the SHAP dependence plots for education growth (\(\Delta\)educ) and health growth (\(\Delta\)health). The SHAP value increases with higher growth rates, indicating that voters reward governors who raise per‑capita education and health spending. The effect is approximately linear for education and shows diminishing returns for health at very high growth rates.
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\columnwidth}
+\includegraphics[width=\linewidth]{../data/shap_dependence_educ.png}
+\caption{SHAP dependence for $\Delta$educ.}
+\label{fig:shap_educ}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\columnwidth}
+\includegraphics[width=\linewidth]{../data/shap_dependence_health.png}
+\caption{SHAP dependence for $\Delta$health.}
+\label{fig:shap_health}
+\end{subfigure}
+\caption{SHAP dependence plots for education and health spending growth.}
+\label{fig:shap_dep}
+\end{figure}
+
+\subsection{Temporal Robustness}
+When trained on pre‑2016 data and tested on 2019–2022, performance drops dramatically: accuracy 44.3\%, AUC 0.412. This indicates that the model does not generalise to future elections.
+
+\subsection{Regression Discontinuity Results}
+Table I presents the RDD estimates for health spending growth. For the 5\% bandwidth, winning a close election increases health spending growth by 1.50 percentage points (95\% CI [0.07, 2.94]). Figure 5 shows the discontinuity plot, and Figure 6 shows sensitivity to bandwidth.
+
+\begin{table}[H]
+\caption{RDD estimates (health spending growth)}
+\centering
+\begin{tabular}{lccc}
+\toprule
+Bandwidth & ATE & SE & 95\% CI \\
+\midrule
+3\% & 1.300 & 0.912 & [-0.487, 3.087] \\
+5\% & \textbf{1.505} & 0.734 & \textbf{[0.066, 2.943]} \\
+7\% & 1.125 & 0.670 & [-0.187, 2.437] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\columnwidth]{../data/rdd_plot.png}
+\caption{Regression discontinuity plot (5\% bandwidth).}
+\label{fig:rdd}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\columnwidth]{../data/rdd_sensitivity.png}
+\caption{Sensitivity of RDD estimate to bandwidth choice.}
+\label{fig:rdd_sens}
+\end{figure}
 
 \section{Discussion}
-\subsection{Comparison with Previous Studies}
-Prior work often found no average effect of dynasties on spending levels \cite{capuno2019}. Our sector-specific counterfactual analysis reveals that the null average masks reallocation – dynasties shift budgets from health/education to welfare/housing. This explains why earlier regressions on total spending or single outcomes found weak effects.
 
-\subsection{Clientelistic Strategy}
-The results support the clientelistic interpretation. Dynasties, facing weaker electoral accountability and longer time horizons, prefer spending that generates personal loyalty. Welfare and housing projects are ideal: they can be announced with the incumbent’s name, delivered to specific barangays, and used to remind voters of benefits received. Health and education, by contrast, benefit everyone and are less effective for vote-buying.
+The random split results show strong correlation between fiscal performance and re‑election. However, the temporal failure suggests that the relationship is not stable over time – possibly due to the COVID‑19 pandemic or changing voter priorities. The RDD provides weak causal evidence: winning a close election increases health spending growth, but the effect is only significant at the 5\% bandwidth.
 
-\subsection{Policy Implications}
+Overall, the evidence supports the view that voters reward fiscal effort, but the effect is not robust across all specifications. Policy implications include:
+- \textbf{Invest in education and health:} Voters reward improvements in these sectors.
+- \textbf{Local revenue effort:} Increasing local taxes is electorally beneficial (SDG 16).
+- \textbf{Dynasties have an advantage:} Anti‑dynasty legislation may reduce incumbency advantage.
+
+\section{Limitations}
 \begin{itemize}
-    \item \textbf{Anti-dynasty legislation} (e.g., the proposed Anti-Political Dynasty Act) may not only increase competition but also improve budget allocation toward public goods.
-    \item \textbf{Formula-based budgeting} – requiring a minimum share of IRA for health and education – could counteract the reallocation.
-    \item \textbf{Transparency measures} – public tracking of welfare and housing expenditures might reduce clientelistic misuse.
-\end{itemize}
-
-\subsection{Limitations}
-\begin{itemize}
-    \item The GAN counterfactual is associational, not causal; unobserved confounders (e.g., corruption) may bias results.
-    \item The synthetic data may produce unrealistic combinations, though we conditioned on income class and region to mitigate this.
-    \item We only analyzed governors; mayors may behave differently.
-    \item Spending is measured in millions, not per capita (population data unavailable), so differences partly reflect LGU size.
+\item The predictive model is correlational, not causal.
+\item Temporal generalisation fails.
+\item The RDD effect is sensitive to bandwidth and only marginally significant.
+\item The dataset is limited to governors; mayors may behave differently.
 \end{itemize}
 
 \section{Conclusion}
-Using a conditional GAN to generate counterfactual non-dynasty LGUs, we provide the first evidence that Philippine political dynasties reallocate local budgets away from health and education and toward public welfare, social services, and housing. This pattern is consistent with clientelistic vote-buying. Our method demonstrates how generative AI can enable transparent, data-driven policy analysis. For SDG 16 (peace, justice and strong institutions), the findings underscore the need for anti-dynasty reforms and public goods safeguards.
+This study demonstrates that fiscal performance correlates with gubernatorial re‑election in the Philippines, but causal evidence is weak and temporal dynamics matter. The work contributes to SDG 16 (accountable institutions) and SDG 4 (quality education). Future research should incorporate time‑varying effects and larger samples of close elections.
 
 \section*{Acknowledgment}
-This paper was originally presented at the 2nd International Conference on the UN SDGs and Social Innovation (ICUNSSI 2026) held on September 23–25, 2026, at the Mindanao State University-Iligan Institute of Technology, Iligan City, Philippines. We thank the UP CIDS Program on Social and Political Change for making the data publicly available.
+This paper was originally presented at the 2nd International Conference on the UN SDGs and Social Innovation (ICUNSSI 2026) held on September 23–25, 2026, at the Mindanao State University‑Iligan Institute of Technology, Iligan City, Philippines.
 
-\begin{thebibliography}{00}
-\bibitem{lott1990} J. R. Lott Jr., ``Attendance rates, political shirking, and the effect of post-elective office employment,'' \textit{Economic Inquiry}, vol. 28, no. 1, pp. 133--150, 1990.
-\bibitem{rothenberg2000} L. S. Rothenberg and M. S. Sanders, ``Legislative shirking and electoral accountability,'' \textit{Public Choice}, vol. 103, no. 3/4, pp. 313--335, 2000.
-\bibitem{mendoza2012} R. U. Mendoza, E. L. Beja Jr., V. S. Venida, and D. B. Yap, ``Political dynasties and poverty: Measurement and evidence,'' \textit{Philippine Review of Economics}, vol. 49, no. 2, pp. 1--25, 2012.
-\bibitem{capuno2019} J. J. Capuno, ``Political dynasties and local fiscal performance: Evidence from the Philippines,'' \textit{Asian Journal of Political Science}, vol. 27, no. 2, pp. 123--145, 2019.
-\bibitem{upcids2024} UP CIDS, ``Philippine Local Government Interactive Dataset,'' 2024. [Online]. Available: https://elections.cids.up.edu.ph/
-\bibitem{lee2010} D. S. Lee and T. Lemieux, ``Regression discontinuity designs in economics,'' \textit{Journal of Economic Literature}, vol. 48, no. 2, pp. 281--355, 2010.
-\bibitem{chernozhukov2018} V. Chernozhukov et al., ``Double/debiased machine learning for treatment and structural parameters,'' \textit{The Econometrics Journal}, vol. 21, no. 1, pp. C1--C68, 2018.
-\bibitem{xu2019} L. Xu, M. Skoularidou, A. Cuesta-Infante, and K. Veeramachaneni, ``Modeling tabular data using conditional GAN,'' in \textit{Advances in Neural Information Processing Systems}, 2019, pp. 7335--7345.
+\begin{thebibliography}{99}
+\bibitem{b1} J. R. Lott Jr., ``Attendance rates, political shirking, and the effect of post-elective office employment,'' \textit{Economic Inquiry}, vol. 28, no. 1, pp. 133–150, 1990.
+\bibitem{b2} L. S. Rothenberg and M. S. Sanders, ``Legislative shirking and electoral accountability,'' \textit{Public Choice}, vol. 103, no. 3/4, pp. 313–335, 2000.
+\bibitem{b3} R. U. Mendoza, E. L. Beja Jr., V. S. Venida, and D. B. Yap, ``Political dynasties and poverty: Measurement and evidence,'' \textit{Philippine Review of Economics}, vol. 49, no. 2, pp. 1–25, 2012.
+\bibitem{b4} J. J. Capuno, ``Political dynasties and local fiscal performance: Evidence from the Philippines,'' \textit{Asian Journal of Political Science}, vol. 27, no. 2, pp. 123–145, 2019.
+\bibitem{b5} R. A. L. Panao, B. F. A. Mendoza, E. F. Habacon, and M. C. C. Reyes, ``Philippine Local Government Interactive Dataset,'' Center for Integrative and Development Studies, University of the Philippines. [Online]. Available: \url{https://elections.cids.up.edu.ph/}
+\bibitem{b6} D. S. Lee and T. Lemieux, ``Regression discontinuity designs in economics,'' \textit{Journal of Economic Literature}, vol. 48, no. 2, pp. 281–355, 2010.
+\bibitem{b7} V. Chernozhukov et al., ``Double/debiased machine learning for treatment and structural parameters,'' \textit{The Econometrics Journal}, vol. 21, no. 1, pp. C1–C68, 2018.
+\bibitem{b8} T. Chen and C. Guestrin, ``XGBoost: A scalable tree boosting system,'' in \textit{Proc. 22nd ACM SIGKDD}, 2016, pp. 785–794.
+\bibitem{b9} S. M. Lundberg and S. I. Lee, ``A unified approach to interpreting model predictions,'' in \textit{Advances in Neural Information Processing Systems}, 2017, pp. 4765–4774.
 \end{thebibliography}
 
 \end{document}
