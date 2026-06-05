@@ -194,9 +194,9 @@ This project is licensed under the MIT License – see the LICENSE file for deta
 🤖 Use of Generative AI
 
 Generative AI tools were used for grammar checking, style editing, and structural suggestions in the discussion section of the paper. All AI‑assisted content was independently reviewed and revised by the author. No AI was used for data analysis or causal inference.
+
 ❓ Contact & Issues
 
 For questions, bug reports, or replication requests, please open an issue on this repository or email the author directly.
 
 Repository: https://github.com/yourusername/ph-gubernatorial-fiscal-rdd
-text
