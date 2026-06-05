@@ -182,6 +182,7 @@ bibtex
 📜 License
 
 This project is licensed under the MIT License – see the LICENSE file for details.
+
 🙏 Acknowledgments
 
     Philippine Local Government Interactive Dataset team for making the data available.
