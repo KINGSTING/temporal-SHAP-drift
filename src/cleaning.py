@@ -17,148 +17,147 @@ def standardize_lgu(name):
 def extract_surname(name):
     if pd.isna(name):
         return ''
-    parts = str(name).split(',')
-    if len(parts) > 1:
-        return parts[0].strip().upper()
-    else:
-        return name.strip().upper().split()[-1]
+    name = str(name).strip().upper()
+    if ',' in name:
+        return name.split(',')[0].strip()
+    parts = name.split()
+    return parts[-1] if parts else ''
 
-# Load fiscal data
-fiscal_df = pd.read_excel('/home/jemarjohn/Documents/Research/mayors-slack-off/data/fiscal_data.xlsx')
-fiscal_df['LGU_clean'] = fiscal_df['LGU name'].apply(standardize_lgu)
+def standardize_region(name):
+    if pd.isna(name):
+        return ''
+    name = str(name).strip().upper()
+    if 'MIMAROPA' in name:
+        return 'MIMAROPA'
+    return name
+
+# Load data
+input_file = '/home/jemarjohn/Documents/Research/temporal-SHAP-drift/data/fiscal+electoral_data_July 2025.xlsx'
+df = pd.read_excel(input_file)
+print("Raw data shape:", df.shape)
+
+df['LGU_clean'] = df['lgu'].apply(standardize_lgu)
 
 # Rename columns
-fiscal_df.rename(columns={
+rename_dict = {
     'year': 'fiscal_year',
-    'election year': 'election_year',
-    "incumbent governor's name": 'incumbent_name',
-    'Health Expenditures in millions': 'health_mn',
-    'expenditures for education in millions': 'educ_mn',
-    'public welfare expenditures in millions': 'pubwelf_mn',
-    'Social Services Expenditures': 'socserv_mn',
-    'Economic Development Expenditures': 'econdev_mn',
-    'Labor Expenditures in millions': 'labor_mn',
-    'Housing Expenditures in millions': 'housing_mn',
-    'government expenditures in millions': 'gov_mn',
-    'Total Expenditures in millions': 'totexp_mn',
-    "LGU's Income in millions": 'income_mn',
-    'Total Tax Collection (Tax Collection) in millions': 'tax_mn',
-    'total external sources in millions': 'ext_mn',
-    'Internal Revenue Collection (IRA) in millions': 'ira_mn',
-    'total local sources in millions': 'local_rev_mn',
-    'share of IRA over total income': 'ira_share',
-    'effective number of candidates (Golosov)': 'enc_gol',
+    'elecyr': 'election_year',
+    'incumbent': 'incumbent_name',
+    'pubwelf': 'pubwelf_mn',
+    'educexp': 'educ_mn',
+    'healthexp': 'health_mn',
+    'govexp': 'gov_mn',
+    'socservexp': 'socserv_mn',
+    'econdevexp': 'econdev_mn',
+    'laborexp': 'labor_mn',
+    'housingexp': 'housing_mn',
+    'totexp': 'totexp_mn',
+    'lgusincome': 'income_mn',
+    'tottax': 'tax_mn',
+    'totexsrc': 'ext_mn',
+    'ira': 'ira_mn',
+    'totlocsrc': 'local_rev_mn',
     'region': 'region',
-    'Income class': 'income_class'
-}, inplace=True, errors='ignore')
+    'lgutype': 'lgutype',
+    'party': 'party',
+    'sex': 'sex',
+    'votes': 'votes',
+    'no_cand': 'no_cand',
+    'totvot': 'total_votes',
+    'ENC_gol': 'enc_gol',
+    'incumbent_terms': 'incumbent_terms'
+}
+df.rename(columns={k: v for k, v in rename_dict.items() if k in df.columns}, inplace=True)
 
-# Convert numeric
+# Convert numeric columns
 num_cols = ['fiscal_year', 'election_year', 'health_mn', 'educ_mn', 'pubwelf_mn',
             'socserv_mn', 'econdev_mn', 'labor_mn', 'housing_mn', 'gov_mn', 'totexp_mn',
-            'income_mn', 'tax_mn', 'ext_mn', 'ira_mn', 'local_rev_mn', 'ira_share', 'enc_gol']
+            'income_mn', 'tax_mn', 'ext_mn', 'ira_mn', 'local_rev_mn', 'enc_gol']
 for col in num_cols:
-    if col in fiscal_df.columns:
-        fiscal_df[col] = pd.to_numeric(fiscal_df[col], errors='coerce')
+    if col in df.columns:
+        df[col] = pd.to_numeric(df[col], errors='coerce')
 
-if 'income_class' not in fiscal_df.columns:
-    fiscal_df['income_class'] = 3
+# Compute IRA share
+if 'ira_share' not in df.columns:
+    if 'ira_mn' in df.columns and 'income_mn' in df.columns:
+        income_safe = df['income_mn'].replace(0, np.nan)
+        df['ira_share'] = df['ira_mn'] / income_safe
+    else:
+        df['ira_share'] = np.nan
 
-keep_cols = ['LGU_clean', 'fiscal_year', 'election_year', 'incumbent_name',
-             'health_mn', 'educ_mn', 'pubwelf_mn', 'socserv_mn', 'econdev_mn',
-             'labor_mn', 'housing_mn', 'gov_mn', 'totexp_mn',
-             'income_mn', 'tax_mn', 'ext_mn', 'ira_mn', 'local_rev_mn',
-             'ira_share', 'enc_gol', 'region', 'income_class']
-fiscal_df = fiscal_df[[c for c in keep_cols if c in fiscal_df.columns]]
-fiscal_df = fiscal_df.reset_index(drop=True)
+if 'income_class' not in df.columns:
+    df['income_class'] = 3
+else:
+    df['income_class'] = pd.to_numeric(df['income_class'], errors='coerce').fillna(3).astype(int)
+
+# Keep rows with valid election_year and fiscal_year
+df = df[df['election_year'].notna() & df['fiscal_year'].notna()].copy()
+print(f"After cleaning: {len(df)} rows")
 
 # Election cycles
-cycle_start = fiscal_df[fiscal_df['fiscal_year'] == fiscal_df['election_year']].copy()
-print(f"Election cycles: {len(cycle_start)}")
+cycle_df = df[df['fiscal_year'] == df['election_year']].copy()
+print(f"Election cycles found: {len(cycle_df)}")
+print("Election years present:", sorted(cycle_df['election_year'].unique()))
 
-# Load election data
-election_df = pd.read_excel('/home/jemarjohn/Documents/Research/mayors-slack-off/data/election_data.xlsx')
-election_df = election_df[election_df['position'].str.lower().str.contains('governor')].copy()
-election_df['LGU_clean'] = election_df['city'].apply(standardize_lgu)
-election_df['vote_share'] = election_df['votes'] / election_df['total']
-election_df['margin'] = election_df['vote_share'] - 0.5
-election_df['won'] = (election_df['margin'] > 0).astype(int)
-election_df['candidate_clean'] = election_df['candidate'].str.upper().str.strip()
-cycle_start['incumbent_clean'] = cycle_start['incumbent_name'].str.upper().str.strip()
-
-# Merge
-merged = cycle_start.merge(
-    election_df[['LGU_clean', 'year', 'candidate_clean', 'vote_share', 'margin', 'won']],
-    left_on=['LGU_clean', 'election_year', 'incumbent_clean'],
-    right_on=['LGU_clean', 'year', 'candidate_clean'],
-    how='inner'
-)
-merged.rename(columns={'year': 'election_year'}, inplace=True)
-merged['reelected'] = merged['won']
-merged = merged.loc[:, ~merged.columns.duplicated()]
-print(f"Matched cycles: {len(merged)}")
-
-# Compute post-election spending averages
-fiscal_lgu = fiscal_df['LGU_clean'].values
-fiscal_year = fiscal_df['fiscal_year'].values
+# Pre/post spending
 spending_cols = ['health_mn', 'educ_mn', 'pubwelf_mn', 'socserv_mn', 'econdev_mn',
                  'labor_mn', 'housing_mn', 'gov_mn', 'totexp_mn']
+spending_cols = [c for c in spending_cols if c in df.columns]
 
-for col in spending_cols:
-    if col not in fiscal_df.columns:
+# Create a mapping from (LGU, election_year) to pre and post means
+pre_dict = {}
+post_dict = {}
+for lgu in cycle_df['LGU_clean'].unique():
+    lgu_fiscal = df[df['LGU_clean'] == lgu][['fiscal_year'] + spending_cols].sort_values('fiscal_year')
+    if lgu_fiscal.empty:
         continue
-    arr = fiscal_df[col].values
-    post_vals = []
-    for row in merged.itertuples():
-        lgu = row.LGU_clean
-        elec_yr = int(row.election_year)
-        mask = (fiscal_lgu == lgu) & (fiscal_year > elec_yr) & (fiscal_year <= elec_yr + 3)
-        if np.any(mask):
-            post_vals.append(np.nanmean(arr[mask]))
-        else:
-            post_vals.append(np.nan)
-    merged[f'{col}_post3'] = post_vals
+    elec_years = cycle_df[cycle_df['LGU_clean'] == lgu]['election_year'].values
+    for elec_yr in elec_years:
+        pre_mask = (lgu_fiscal['fiscal_year'] >= elec_yr - 3) & (lgu_fiscal['fiscal_year'] < elec_yr)
+        post_mask = (lgu_fiscal['fiscal_year'] > elec_yr) & (lgu_fiscal['fiscal_year'] <= elec_yr + 3)
+        pre_mean = lgu_fiscal.loc[pre_mask, spending_cols].mean()
+        post_mean = lgu_fiscal.loc[post_mask, spending_cols].mean()
+        pre_dict[(lgu, elec_yr)] = pre_mean
+        post_dict[(lgu, elec_yr)] = post_mean
 
-# Also compute pre-election spending (t-3 to t-1) for each sector (as confounders)
-for col in spending_cols:
-    if col not in fiscal_df.columns:
-        continue
-    arr = fiscal_df[col].values
-    pre_vals = []
-    for row in merged.itertuples():
-        lgu = row.LGU_clean
-        elec_yr = int(row.election_year)
-        mask = (fiscal_lgu == lgu) & (fiscal_year >= elec_yr - 3) & (fiscal_year < elec_yr)
-        if np.any(mask):
-            pre_vals.append(np.nanmean(arr[mask]))
-        else:
-            pre_vals.append(np.nan)
-    merged[f'{col}_pre3'] = pre_vals
+# Convert to DataFrame for merging
+pre_df = pd.DataFrame([(k[0], k[1]) + tuple(v) for k, v in pre_dict.items()],
+                      columns=['LGU_clean', 'election_year'] + [f'{col}_pre3' for col in spending_cols])
+post_df = pd.DataFrame([(k[0], k[1]) + tuple(v) for k, v in post_dict.items()],
+                       columns=['LGU_clean', 'election_year'] + [f'{col}_post3' for col in spending_cols])
 
-# Add incumbent years in office (approximate: count previous terms)
-merged = merged.sort_values(['LGU_clean', 'election_year'])
-merged['incumbent_terms'] = merged.groupby('LGU_clean')['incumbent_name'].transform(
-    lambda x: (x == x.shift(1)).cumsum()
-)
-merged['incumbent_terms'] = merged['incumbent_terms'].fillna(0).astype(int)
+# Merge with cycle_df
+cycle_df = cycle_df.merge(pre_df, on=['LGU_clean', 'election_year'], how='left')
+cycle_df = cycle_df.merge(post_df, on=['LGU_clean', 'election_year'], how='left')
 
 # Dynasty indicator
-merged['prev_incumbent'] = merged.groupby('LGU_clean')['incumbent_name'].shift(1)
-merged['surname_inc'] = merged['incumbent_name'].apply(extract_surname)
-merged['surname_prev'] = merged['prev_incumbent'].apply(extract_surname)
-merged['dynasty'] = (merged['surname_inc'] == merged['surname_prev']).astype(int)
+cycle_df = cycle_df.sort_values(['LGU_clean', 'election_year'])
+cycle_df['incumbent_name_str'] = cycle_df['incumbent_name'].astype(str).str.upper().str.strip()
+cycle_df['prev_incumbent'] = cycle_df.groupby('LGU_clean')['incumbent_name_str'].shift(1)
+cycle_df['surname_inc'] = cycle_df['incumbent_name_str'].apply(extract_surname)
+cycle_df['surname_prev'] = cycle_df['prev_incumbent'].apply(extract_surname)
+cycle_df['dynasty'] = (cycle_df['surname_inc'] == cycle_df['surname_prev']).astype(int)
 
-# Save raw panel with extra features
+if 'incumbent_terms' not in cycle_df.columns:
+    cycle_df['incumbent_terms'] = cycle_df.groupby('LGU_clean')['incumbent_name_str'].transform(
+        lambda x: (x == x.shift(1)).cumsum()
+    ).fillna(0).astype(int)
+else:
+    cycle_df['incumbent_terms'] = pd.to_numeric(cycle_df['incumbent_terms'], errors='coerce').fillna(0).astype(int)
+
+# Final columns
 output_cols = ['LGU_clean', 'election_year', 'incumbent_name', 'dynasty', 'incumbent_terms',
                'ira_share', 'local_rev_mn', 'enc_gol', 'income_class', 'region']
-# Add post spending
 for col in spending_cols:
-    if f'{col}_post3' in merged.columns:
-        output_cols.append(f'{col}_post3')
-# Add pre spending as confounders
-for col in spending_cols:
-    if f'{col}_pre3' in merged.columns:
-        output_cols.append(f'{col}_pre3')
+    output_cols.append(f'{col}_pre3')
+    output_cols.append(f'{col}_post3')
+output_cols = [c for c in output_cols if c in cycle_df.columns]
+final_df = cycle_df[output_cols].copy()
 
-final_df = merged[output_cols].copy()
-final_df.to_csv('full_panel_all_sectors_enhanced.csv', index=False)
-print(f"Saved enhanced panel with {len(final_df)} rows")
+final_df['region'] = final_df['region'].apply(standardize_region)
+
+# Save
+output_path = 'full_panel_all_sectors_enhanced.csv'
+final_df.to_csv(output_path, index=False)
+print(f"Saved enhanced panel with {len(final_df)} rows to {output_path}")
+print("Election years in final dataset:", sorted(final_df['election_year'].unique()))

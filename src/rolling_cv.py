@@ -5,6 +5,7 @@ from scipy.interpolate import interp1d
 from sklearn.preprocessing import OneHotEncoder
 import xgboost as xgb
 import matplotlib.pyplot as plt
+import shap
 
 # Helper: clean LGU names
 def clean_lgu_name(name):
@@ -138,7 +139,7 @@ spending = spending.dropna(subset=['reelected', 'next_winner'])
 print(f"Spending after adding reelected: {len(spending)} rows")
 
 # ------------------------------------------------------------
-# Prepare feature dataset
+# Prepare feature dataset (including interactions)
 # ------------------------------------------------------------
 df_model = spending[['LGU_clean', 'election_year', 'delta_health', 'delta_educ', 'delta_pubwelf',
                      'local_rev_mn', 'enc_gol', 'dynasty', 'region', 'reelected', 'ira_share']].copy()
@@ -150,30 +151,48 @@ prev_margin.rename(columns={'year': 'election_year', 'vote_share': 'prev_margin'
 df_model = df_model.merge(prev_margin, on=['LGU_clean', 'election_year'], how='left')
 df_model['prev_margin'] = df_model['prev_margin'].fillna(0.5)
 
+# Create interaction terms
+df_model['dynasty_x_delta_health'] = df_model['dynasty'] * df_model['delta_health']
+df_model['dynasty_x_delta_educ'] = df_model['dynasty'] * df_model['delta_educ']
+df_model['dynasty_x_delta_pubwelf'] = df_model['dynasty'] * df_model['delta_pubwelf']
+df_model['dynasty_x_ira'] = df_model['dynasty'] * df_model['ira_share']
+
 df_model = df_model.dropna(subset=['delta_health', 'delta_educ', 'delta_pubwelf', 'local_rev_pc', 'enc_gol', 'prev_margin', 'won', 'ira_share'])
 print(f"Final dataset: {df_model.shape[0]} observations")
 print(df_model['won'].value_counts())
 
 # ------------------------------------------------------------
-# Feature engineering (one‑hot encode region)
+# Feature engineering (one‑hot encode region, include interactions)
 # ------------------------------------------------------------
-feature_cols = ['delta_health', 'delta_educ', 'delta_pubwelf', 'local_rev_pc', 'enc_gol', 'dynasty', 'prev_margin', 'ira_share', 'region']
+feature_cols = ['delta_health', 'delta_educ', 'delta_pubwelf', 'local_rev_pc', 'enc_gol', 
+                'dynasty', 'prev_margin', 'ira_share',
+                'dynasty_x_delta_health', 'dynasty_x_delta_educ', 'dynasty_x_delta_pubwelf', 'dynasty_x_ira',
+                'region']
+
 X_raw = df_model[feature_cols].copy()
 y = df_model['won'].values
 
+# One-hot encode region
 encoder = OneHotEncoder(sparse_output=False, handle_unknown='ignore')
 X_cat = encoder.fit_transform(X_raw[['region']])
+region_dummies = encoder.get_feature_names_out(['region'])
+
+# Separate continuous features (excluding region)
 X_cont = X_raw.drop(columns=['region']).values
+cont_feature_names = [col for col in feature_cols if col != 'region']
+
+# Combined feature names
+all_feature_names = cont_feature_names + list(region_dummies)
 X = np.hstack([X_cont, X_cat])
 
 # ------------------------------------------------------------
-# Rolling‑window temporal validation
+# Rolling‑window temporal validation with SHAP (including interactions)
 # ------------------------------------------------------------
 years = sorted(df_model['election_year'].unique())
 results = []
+shap_records = []
 
 for i, test_year in enumerate(years):
-    # Only test on years that have at least some training data before
     if test_year <= years[0]:
         continue
     train_mask = df_model['election_year'] < test_year
@@ -190,9 +209,16 @@ for i, test_year in enumerate(years):
     acc = model.score(X_test, y_test)
     results.append((test_year, acc))
     print(f"Test year {test_year}: accuracy = {acc:.3f} (n_train={train_mask.sum()}, n_test={test_mask.sum()})")
+    
+    # SHAP computation
+    explainer = shap.TreeExplainer(model)
+    shap_values = explainer.shap_values(X_test)
+    mean_abs_shap = np.abs(shap_values).mean(axis=0)
+    yearly_shap = pd.DataFrame([mean_abs_shap], columns=all_feature_names, index=[test_year])
+    shap_records.append(yearly_shap)
 
 # ------------------------------------------------------------
-# Plot and save
+# Plot and save rolling accuracy
 # ------------------------------------------------------------
 years_plot, acc_plot = zip(*results)
 plt.figure(figsize=(8, 5))
@@ -201,9 +227,19 @@ plt.axhline(y=0.5, color='red', linestyle='--', label='Random guess (0.5)')
 plt.axvline(x=2016, color='orange', linestyle='--', label='2016 election')
 plt.xlabel('Test election year')
 plt.ylabel('Accuracy')
-plt.title('Rolling‑window temporal validation')
+plt.title('Rolling‑window temporal validation (with interactions)')
 plt.legend()
 plt.grid(True, alpha=0.3)
 plt.savefig('../data/rolling_cv.png', dpi=300)
 plt.close()
 print("Rolling CV plot saved to ../data/rolling_cv.png")
+
+# ------------------------------------------------------------
+# Save temporal SHAP drift results
+# ------------------------------------------------------------
+if shap_records:
+    shap_drift_df = pd.concat(shap_records)
+    shap_drift_df.to_csv('../data/temporal_shap_drift.csv')
+    print(f"Temporal SHAP drift saved to ../data/temporal_shap_drift.csv (shape: {shap_drift_df.shape})")
+else:
+    print("No SHAP records were generated.")

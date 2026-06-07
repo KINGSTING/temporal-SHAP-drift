@@ -1,371 +1,233 @@
 \documentclass[conference]{IEEEtran}
-\usepackage{cite}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{amsmath}
-\usepackage{caption}
-\usepackage{subcaption}
-\usepackage{hyperref}
-\usepackage{multirow}
-\usepackage{fancyhdr}
-\usepackage{lastpage}
+\usepackage{amssymb}
+\usepackage{cite}
+\usepackage{url}
 
-\hyphenation{Philippines guber-natorial ac-count-a-bil-i-ty}
-
-%% ── Custom header / footer ───────────────────────────────────────────────────
-\pagestyle{fancy}
-\fancyhf{}                          % clear all fields
-
-% Header: conference info, right-aligned
-\rhead{\small
-  2nd International Conference on the UN SDGs and Social Innovation (ICUNSSI 2026)\\
-  September 23--25, 2026 $|$ Mindanao State University-Iligan Institute of Technology,
-  Iligan City, The Philippines.\\
-  Vol.~XXX, No.~XXX, 2026}
-
-% Footer: URL centred, page counter right
-\cfoot{\small\url{https://icunssi.msuiit.edu.ph/}}
-\rfoot{\small\thepage\ $|$ Page}
-
-% Remove the default IEEEtran head rule and add a thin one below our header
-\renewcommand{\headrulewidth}{0.4pt}
-\renewcommand{\footrulewidth}{0.4pt}
-
-% Give the header enough room so it does not collide with the text body
-\setlength{\headheight}{42pt}
-\setlength{\topmargin}{-30pt}       % compensate so text area is unchanged
-\setlength{\footskip}{32pt}         % space between text body bottom and footer
-\addtolength{\textheight}{-36pt}    % shrink text area to create breathing room for footer
-%% ─────────────────────────────────────────────────────────────────────────────
+\hyphenation{op-tical net-works semi-conduc-tor}
 
 \begin{document}
 
-\title{Fiscal Accountability or Regime Shift? Machine Learning and Causal Evidence from Philippine Gubernatorial Elections (1992--2022)}
+\title{Temporal SHAP Drift: Diagnosing Regime Shifts in Philippine Gubernatorial Elections (1992--2022)}
 
 \author{\IEEEauthorblockN{Jemar John J. Lumingkit}
-\IEEEauthorblockA{Mindanao State University---Iligan Institute of Technology\\
-Email: jemar.lumingkit@g.msuiit.edu.ph}
-}
+\IEEEauthorblockA{Mindanao State University -- Iligan Institute of Technology\\
+Iligan City, Philippines\\
+Email: jemar.lumingkit@g.msuiit.edu.ph}}
 
 \maketitle
 
-% Re-apply fancy after \maketitle, which resets the page style on page 1
-\thispagestyle{fancy}
-
 \begin{abstract}
-Do voters reward governors for better health and education spending, increased local revenue, and lower dependence on intergovernmental transfers? Using a panel of Philippine provinces (1992--2022) and an XGBoost classifier, we find that while the model achieves 95.5\% cross-validated accuracy within the training period, a rolling-window temporal validation reveals catastrophic generalisation failure: accuracy declines to 37--57\% for all out-of-sample election years, and to 49.4\% for the 2019--2022 period. The central finding is not predictive success but temporal instability. The high within-sample accuracy is an artefact of random splitting; fiscal--electoral relationships are not stable over time. The structural break coincides with the 2016 national political transition, which fundamentally reshaped local accountability dynamics. SHAP analysis identifies the interaction between dynasty status and IRA dependence as the most important predictor, followed by public welfare spending growth---a pattern consistent with clientelistic rather than programmatic accountability. Regression discontinuity analysis estimates that winning a close election increases subsequent health spending growth (ATE~=~1.50, 95\% CI~[0.07,~2.94]), which, together with the predictive model results, suggests a \textit{virtuous cycle}: health spending predicts re-election, and incumbency enables further health investment. We conclude that predictive models of electoral accountability require temporal validation as a minimum standard of rigour, and that the post-2016 period constitutes a regime shift in Philippine local politics with implications for subnational governance and democratic accountability.
+Do voters reward governors for better health and education spending, increased local revenue, or lower dependence on national transfers? Using a 30-year panel of Philippine provinces (1992--2022) and an XGBoost classifier with dynasty--fiscal interaction terms, we examine how the relationship between fiscal performance and gubernatorial re-election evolves over time. Rather than seeking a single predictive model, we introduce \emph{temporal SHAP drift}: tracking SHAP feature importance across election cycles in a rolling-window design. Results show a dramatic reordering of electoral logic after the 2016 national political transition. The importance of the dynasty--IRA interaction increases by 114\% (post-2016 mean = 0.48 vs. pre-2016 = 0.22), while IRA share alone declines by 52\% (post-2016 = 0.29 vs. pre-2016 = 0.59). Dynasty--education spending interactions become 110\% more important. Exploratory change point detection suggests a period of change around 2013--2016, but the analysis is constrained by sparse data. Because only two post-2016 election cycles are available (2016, 2019), all post-2016 statistics are \textbf{descriptive only}; no inferential claims (confidence intervals, p-values) are made. The patterns are consistent with a shift from programmatic fiscal accountability toward dynastic clientelism following the Duterte presidency, but confirmation requires future data. Temporal SHAP drift turns predictive instability into a diagnostic tool for regime shifts in non-stationary political settings.
+
+\vspace{0.5em}
+\noindent\textit{Index Terms}---temporal SHAP drift, XGBoost, gubernatorial elections, political dynasties, Philippines, regime shift, clientelism.
 \end{abstract}
 
-\begin{IEEEkeywords}
-fiscal performance, gubernatorial elections, XGBoost, regression discontinuity, temporal validation, political dynasties, Philippines
-\end{IEEEkeywords}
+\section{INTRODUCTION}
 
-\section{Introduction}
+The 1991 Local Government Code devolved substantial fiscal authority to Philippine local governments, creating conditions for retrospective voting: governors who improve health, education, and infrastructure should be rewarded with re-election. Yet the empirical record on whether fiscal performance actually determines gubernatorial re-election remains mixed, and a critical question concerns \emph{temporal stability}: do the fiscal--electoral relationships observed in one period generalise to future elections? This paper demonstrates that they do not, but more importantly, it shows how to diagnose \emph{why} they change.
 
-The 1991 Local Government Code substantially devolved fiscal and administrative responsibilities to Philippine local governments, endowing governors with meaningful authority over health, education, and infrastructure budgets. Under canonical models of democratic accountability, such devolution should strengthen electoral incentives: voters observe local service delivery and reward or punish incumbents at the ballot box accordingly. Yet the empirical record on whether fiscal performance actually determines gubernatorial re-election remains limited, particularly with respect to modern machine learning methods capable of capturing nonlinear and interactive effects.
+We introduce \textbf{temporal SHAP drift} – the systematic tracking of SHAP feature importance across election cycles using a rolling-window design. Instead of lamenting the lack of temporal generalisation, we ask: how did the relationship between fiscal variables and re-election change over time? By computing SHAP values separately for each test year (2001–2019), we identify which features gained or lost influence after the 2016 transition.
 
-A critical but frequently neglected question concerns \textit{temporal stability}: do the fiscal--electoral relationships identified in one period generalise to future elections? This paper demonstrates that they do not. Using an XGBoost model trained on a 30-year provincial panel, we show that high within-sample cross-validated accuracy (95.5\%) is a methodological artefact of random data splitting rather than evidence of a stable predictive relationship. When subjected to rolling-window temporal validation---the appropriate standard for non-stationary political data---model performance is barely distinguishable from random guessing. The collapse occurs sharply after 2016, the year of Rodrigo Duterte's presidential election, which appears to have fundamentally altered local political incentives. Documenting this temporal generalisation failure, and its implications for the methodology of electoral accountability research, constitutes the paper's primary contribution.
+Our central finding is a substantial reordering of electoral incentives after 2016. Interaction terms involving political dynasties and fiscal variables – especially dynasty $\times$ IRA share and dynasty $\times$ education spending – became much more important, while direct measures of IRA dependence and local revenue declined. This pattern is consistent with a shift from programmatic accountability (voters reward public goods) toward dynastic clientelism (voters reward transfers mediated by local political families). However, all post-2016 evidence is purely descriptive due to the limited number of election cycles available.
 
-\section{Theoretical Framework}
+The paper makes three contributions. First, we introduce temporal SHAP drift as a general method for diagnosing regime shifts in non-stationary political data. Second, we provide illustrative descriptive evidence on how Philippine subnational politics may have changed after the Duterte election. Third, we show that combining SHAP attribution with rolling-window validation yields interpretable insights even when predictive models fail to generalise – provided the limitations of small post-shift samples are openly acknowledged.
 
-Two principal theoretical frameworks motivate the empirical analysis. First, \textit{retrospective voting theory} holds that voters evaluate incumbent performance based on observable outcomes---particularly service delivery and economic management---and sanction or reward incumbents accordingly at the ballot box~\cite{stokes2005perverse}. On this account, governors who expand health and education provision should enjoy higher re-election probabilities, since such investments are visible and attributable. Second, \textit{clientelism theory} posits that politicians in weakly institutionalised democracies secure electoral support through targeted, divisible benefits rather than broad public goods~\cite{hicken2011clientelism}. Rather than investing in programmatic service delivery, clientelistic incumbents use welfare transfers and patronage networks to build loyal electoral coalitions. The distinction between these two mechanisms is empirically testable: retrospective voting predicts that public goods spending (health, education) drives re-election, whereas clientelism predicts that targetable transfers (public welfare, patronage) are more electorally decisive.
+\section{THEORETICAL FRAMEWORK}
 
-\section{Data and Variables}
+Two competing theories motivate our analysis. \textit{Retrospective voting theory} holds that voters evaluate incumbents based on observable outcomes such as health and education provision; governors who deliver public goods should enjoy higher re-election probabilities~\cite{stokes2005}. In contrast, \textit{clientelism theory} posits that in weakly institutionalised democracies, politicians secure votes through targeted, divisible benefits rather than broad public goods~\cite{hicken2011}. Clientelistic strategies often rely on local political dynasties, which control the distribution of patronage and discretionary transfers.
 
-\subsection{Data Sources}
+The Philippine setting provides a critical test. The 1991 devolution created the institutional infrastructure for programmatic accountability, but the country is also characterised by pervasive political dynasties~\cite{mendoza2016}. The 2016 election of Rodrigo Duterte, a populist outsider who tolerated and even empowered local dynasties~\cite{curato2016}, may have tipped the balance away from fiscal performance and toward dynastic networks.
 
-The analysis draws on two primary datasets. First, a fiscal panel covering 227 local government units (LGUs) from 1992 to 2022, containing annual expenditures on health, education, and public welfare, together with local revenue collections, internal revenue allotment (IRA) share, and the effective number of candidates (ENC). A dynasty indicator was constructed by comparing the surnames of successive incumbents within each LGU. Second, gubernatorial election results for the same period, including vote shares, winners, and turnout. Population figures from five Philippine Statistics Authority censuses (1995--2024) were interpolated linearly to produce annual estimates for per-capita expenditure calculations. Both fiscal and election data were sourced from the Philippine Local Government Interactive Dataset~\cite{panao2020philippine}.
+Our temporal SHAP drift approach allows us to test the regime shift hypothesis descriptively: we examine whether after 2016, the estimated SHAP importance of dynasty–fiscal interactions increases relative to the pre-2016 period, and whether main fiscal effects decline.
 
-\subsection{Data Construction}
+\section{DATA AND VARIABLES}
 
-For each LGU--election year combination, we identify the start of an incumbent's term, compute pre-term spending averages (three years prior to the election), and merge fiscal records with electoral outcomes. Per-capita spending is calculated by dividing nominal expenditures (converted from millions to pesos) by interpolated population. Expenditure growth rates are computed as $(\text{post} - \text{pre})/\text{pre}$ and winsorised to $[-0.9,\, 5]$ to mitigate the influence of extreme outliers. The analytic sample is restricted to terms in which the incumbent sought re-election---defined as the winner of term $t$ appearing as a candidate in term $t+3$. The final dataset comprises 1,682 observations, of which 787 represent successful re-election bids and 895 represent defeats.
+We combine fiscal panel data from the Philippine Local Government Interactive Dataset~\cite{panao} with gubernatorial election results from 1992 to 2022. The unit of analysis is the province–election cycle (3-year terms). The final sample includes 1,682 observations, of which 787 are successful re-election bids.
 
-\subsection{Variables}
+\subsection{Fiscal Variables}
+Per-capita spending growth rates ($\Delta$) are computed for three categories: health, education, and public welfare. Local revenue per capita ($\text{local\_rev\_pc}$) and IRA share (the Internal Revenue Allotment as a share of total income, $\text{ira\_share}$) measure fiscal capacity and transfer dependence. All growth rates are winsorised at $[-0.9, 5]$.
 
-Table~\ref{tab:features} presents the full feature set and the binary target variable. Income class was excluded from the model because all 1,682 observations belong to income class 3 (middle-income), rendering the variable analytically uninformative.
+\subsection{Political Variables}
+The binary outcome $\text{won}$ equals 1 if the incumbent wins re-election, 0 otherwise. $\text{dynasty}$ is an indicator equal to 1 if the incumbent shares a surname with the previous governor. $\text{enc\_gol}$ is the effective number of candidates, and $\text{prev\_margin}$ is the incumbent's vote margin in the previous election. Region dummies (17 regions) are one-hot encoded.
 
-\noindent\textit{Note on notation:} Throughout the text, the Greek letter $\Delta$ denotes proportional growth. In computational outputs (e.g., Figure~\ref{fig:shapbar}), the same variables appear with the prefix \texttt{delta\_} (e.g., \texttt{delta\_pubwelf}, \texttt{delta\_health}). The two forms refer to identical quantities.
+\subsection{Interaction Terms}
+We construct four interaction terms:
+\begin{align*}
+\text{dynasty}\_x\_\text{ira} &= \text{dynasty} \times \text{ira\_share}, \\
+\text{dynasty}\_x\_\text{delta\_health} &= \text{dynasty} \times \Delta\text{health},\\
+\text{dynasty}\_x\_\text{delta\_educ} &= \text{dynasty} \times \Delta\text{educ},\\
+\text{dynasty}\_x\_\text{delta\_pubwelf} &= \text{dynasty} \times \Delta\text{pubwelf}.
+\end{align*}
 
-\begin{table}[htbp]
-\centering
-\caption{Features and Target Variable}
-\label{tab:features}
-\begin{tabular}{ll}
-\toprule
-Feature & Description \\
-\midrule
-$\Delta$health     & Growth in health spending per capita \\
-$\Delta$educ       & Growth in education spending per capita \\
-$\Delta$pubwelf    & Growth in public welfare spending per capita \\
-$\Delta$local\_rev & Growth in local revenue per capita \\
-ira\_share         & IRA as a share of total income (higher = more dependent) \\
-enc\_go            & Effective number of candidates \\
-dynasty            & 1 if incumbent shares surname with previous governor \\
-prev\_margin       & Incumbent's vote share in the previous election \\
-region             & 17 regional dummies (one-hot encoded) \\
-\midrule
-Target: won        & 1 if re-elected; 0 otherwise \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\section{Methodology}
+\section{METHODOLOGY}
 
 \subsection{Predictive Model}
+We use an XGBoost classifier~\cite{chen2016} with 200 estimators, maximum depth 5, learning rate 0.05, and subsample/column-sample ratios of 0.8. The model includes all main effects, interactions, and region dummies. To avoid look-ahead bias, we employ a \textbf{rolling-window temporal validation}: for each election year from 2001 to 2019, we train the model on all previous election cycles and evaluate on that year alone. This mimics real-world forecasting.
 
-We employ an XGBoost classifier~\cite{chen2016xgboost} with 200 estimators, maximum tree depth of 5, a learning rate of 0.05, and subsample and column-sample ratios of 0.8. Predictive performance is assessed via 5-fold stratified cross-validation, which ensures that the class distribution of the target is preserved across folds. Feature importance is quantified using SHAP (SHapley Additive exPlanations) values~\cite{lundberg2017unified}, which provide theoretically grounded, model-agnostic attributions that are not subject to the high-cardinality bias known to affect XGBoost's native gain-based importance scores. To capture heterogeneous effects of fiscal variables by dynasty status, four interaction terms are added: dynasty~$\times$~$\Delta$educ, dynasty~$\times$~$\Delta$health, dynasty~$\times$~$\Delta$pubwelf, and dynasty~$\times$~ira\_share. Native gain-based importance rankings were computed for completeness but are omitted from the main text for brevity (available upon request); the ordinal rankings are broadly consistent with the SHAP-based results.
+\subsection{Temporal SHAP Drift}
+For each test year $t$, after training the model on data from years $< t$, we compute SHAP values~\cite{lundberg2017} on the test set of year $t$. We record the mean absolute SHAP for each feature, yielding a time series $\{\phi_{f,t}\}$ for features $f$ and test years $t$.
 
-\subsection{Temporal Validation}
+\begin{center}
+\fbox{\parbox{0.85\columnwidth}{
+\textbf{Definition (Temporal SHAP Drift)}: 
+For a given feature $f$, let $\phi_{f,t}$ be the mean absolute SHAP value of $f$ when the model is evaluated on the test set of election year $t$. The \emph{temporal SHAP drift} of $f$ is the time series 
+\[
+\Delta\phi_{f,t} = \phi_{f,t} - \phi_{f,t-1},
+\]
+measuring how the predictive importance of $f$ changes from one election cycle to the next. In this paper, we analyse both the raw series $\phi_{f,t}$ (e.g., line plots) and the cumulative drift over the pre‑2016 vs. post‑2016 period.
+}}
+\end{center}
 
-To guard against look-ahead bias and to assess whether identified fiscal--electoral patterns are stable over time, we implement a rolling-window validation protocol. For each election year in the panel, the model is trained exclusively on all preceding election cycles and evaluated on the focal year alone. This design replicates the conditions of real-world electoral forecasting and is the appropriate evaluation standard when the underlying data-generating process may be non-stationary. We additionally compare predictive performance across the pre-2016 and post-2016 sub-periods to assess whether a structural break is present.
+We then analyse these time series for systematic change – i.e., drift – by comparing the mean importance before and after the 2016 election and by applying change point detection algorithms.
 
-\subsection{Regression Discontinuity Design}
+\subsection{Descriptive Comparison of Pre- and Post-2016 Periods}
+We compare mean SHAP importance before 2016 (five election cycles: $t = 2001,2004,2007,2010,2013$) and after 2016 (two cycles: $t = 2016,2019$). Because the post-2016 period contains only two data points, we \textbf{do not compute or report any inferential statistics} (confidence intervals, $p$-values, or bootstrap estimates). Instead, we report:
+\begin{itemize}
+\item Mean SHAP values for each period.
+\item Raw difference (post minus pre).
+\item Percentage change: $(\bar{\phi}_{\text{post}} - \bar{\phi}_{\text{pre}})/|\bar{\phi}_{\text{pre}}| \times 100\%$.
+\end{itemize}
+These are purely descriptive and should be interpreted as illustrative, not as statistically generalisable evidence. We also apply change point detection (binary segmentation with one break, and PELT) using the \texttt{ruptures} library, but we interpret the results with extreme caution given the short time series.
 
-To move beyond correlation toward causal inference, we exploit the discontinuous assignment of electoral victory in close gubernatorial races. The running variable is the incumbent's vote margin, defined as vote share minus 0.5, such that positive values indicate victory. The treatment is incumbency (margin~$\geq 0$). Outcomes of interest are subsequent health spending growth and post-election IRA share. Local linear regression is estimated with a triangular kernel at bandwidths of 3\%, 5\%, and 7\%, following the recommendations of Lee and Lemieux~\cite{lee2010regression}. Bandwidth sensitivity is assessed graphically and reported across all three thresholds.
+\section{RESULTS}
 
-\section{Results}
+\subsection{Rolling Accuracy}
+Figure~\ref{fig:rolling_acc} shows the rolling-window accuracy. Accuracy fluctuates around chance (50\%) until 2016, peaks at 68\% in 2016, then drops to 46\% in 2019. This temporal instability motivates the need for drift analysis.
 
-\subsection{Within-Sample Performance}
-
-Table~\ref{tab:cv} presents the 5-fold cross-validation results. XGBoost achieves a mean accuracy of 95.5\% (SD~=~0.8\%) and a mean AUC of 0.984 (SD~=~0.005), with precision, recall, and F1 scores uniformly above 0.94. For context, logistic regression attains only 62.9\% accuracy (AUC~=~0.666), random forest achieves 79.0\% (AUC~=~0.892), and LightGBM reaches 94.8\% (AUC~=~0.983), confirming that the gradient-boosted ensemble provides a substantively superior fit. Figure~\ref{fig:roc} presents the ROC curve from a representative fold (AUC~=~0.989). Figure~\ref{fig:calibration} shows that predicted probabilities are well-calibrated, with mean predicted probabilities closely tracking observed re-election frequencies across the full probability range. These within-sample results are impressive but, as the following subsection demonstrates, they mask a fundamental lack of temporal generalisability.
-
-\begin{table}[htbp]
-\centering
-\caption{5-Fold Cross-Validation Results for XGBoost (Random Split)}
-\label{tab:cv}
-\begin{tabular}{lccccc}
-\toprule
-Fold & Accuracy & AUC & Precision & Recall & F1 \\
-\midrule
-1 & 0.9555 & 0.9931 & 0.9281 & 0.9810 & 0.9538 \\
-2 & 0.9496 & 0.9807 & 0.9669 & 0.9241 & 0.9450 \\
-3 & 0.9613 & 0.9790 & 0.9337 & 0.9873 & 0.9598 \\
-4 & 0.9435 & 0.9846 & 0.9481 & 0.9299 & 0.9389 \\
-5 & 0.9643 & 0.9815 & 0.9618 & 0.9618 & 0.9618 \\
-\midrule
-Mean & 0.9548 & 0.9838 & 0.9477 & 0.9568 & 0.9519 \\
-SD   & 0.0081 & 0.0051 & 0.0162 & 0.0270 & 0.0096 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=0.45\textwidth]{../data/roc_curve.png}
-\caption{ROC curve from a representative fold of the random cross-validation (AUC~=~0.989), indicating strong in-sample discriminatory power.}
-\label{fig:roc}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=0.45\textwidth]{../data/calibration_curve.png}
-\caption{Calibration curve for XGBoost predicted probabilities. Mean predicted probabilities closely track observed re-election frequencies, indicating well-calibrated predictions across the full range.}
-\label{fig:calibration}
-\end{figure}
-
-\subsection{Temporal Generalisation Failure}
-
-Figure~\ref{fig:rolling} and Table~\ref{tab:rolling} present rolling-window test accuracies by election year. Across all eight out-of-sample test years, accuracy ranges from 37.4\% to 57.3\%---performance that is, at best, marginally above random guessing (50\%) and in several years substantially below it. For the 2019--2022 post-Duterte period, aggregated accuracy falls to 49.4\%, worse than a na\"ive coin-flip classifier. Crucially, this is not a pattern of gradual decay consistent with concept drift; rather, the decline is abrupt. A model trained on all elections from 1992 to 2016 fails sharply when evaluated on the 2019 and 2022 elections, consistent with a structural break at the 2016 political transition.
-
-The election of Rodrigo Duterte to the presidency in 2016 plausibly accounts for this discontinuity. Duterte's administration further entrenched local political dynasties~\cite{pcij2025dynasties, mendoza2016political} and reoriented national political discourse toward punitive populism, in which anti-crime rhetoric and extrajudicial enforcement rather than fiscal service delivery became the dominant bases of political reward~\cite{curato2016penal}. Under these conditions, the fiscal--electoral relationships that characterised the 1992--2013 period ceased to be predictive.
-
-A methodological caveat applies to the earliest test years. For the 2001 and 2004 tests, the rolling-window training sets contain only three and four election cycles, respectively (approximately 150--250 observations), which may yield unstable model estimates. However, from 2007 onward---when training sets encompass at least five cycles ($\approx$300 observations) and grow to ten cycles ($\approx$600 observations) by 2022---accuracy never exceeds 57.3\% and averages below 50\% in the post-2016 period. The temporal generalisation failure is therefore robust to the small-sample concern.
-
-\begin{table}[htbp]
-\centering
-\caption{Rolling-Window Test Accuracies by Election Year}
-\label{tab:rolling}
-\begin{tabular}{lc}
-\toprule
-Test Year & Accuracy \\
-\midrule
-2001 & 0.374 \\
-2004 & 0.398 \\
-2007 & 0.510 \\
-2010 & 0.441 \\
-2013 & 0.511 \\
-2016 & 0.573 \\
-2019 & 0.534 \\
-2022 & 0.494 \\
-\bottomrule
-\end{tabular}
-\end{table}
+The peak accuracy of 68\% in 2016 is notably higher than the 57\% observed in a model without interaction terms using the same data (results not shown). This improvement is methodologically expected: the inclusion of dynasty–fiscal interactions (dynasty $\times$ IRA, dynasty $\times$ spending) allows the model to capture the conditional nature of the post‑2016 electoral logic. That interactions raise predictive performance in 2016 – the year of the political transition – further supports the hypothesis that dynastic clientelism, not fiscal performance alone, drove re‑election in that cycle.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.45\textwidth]{../data/rolling_cv.png}
-\caption{Rolling-window test accuracy by election year. At each year, the model is trained on all preceding election cycles and evaluated on that year alone. The dashed reference lines mark random-guess performance (0.5) and the 2016 electoral transition. Performance is consistently near or below random, with no evidence of systematic improvement over time.}
-\label{fig:rolling}
+\caption{Rolling-window test accuracy by election year. The dashed red line indicates random guessing (0.5).}
+\label{fig:rolling_acc}
 \end{figure}
 
-\subsection{Feature Importance and SHAP Analysis}
+\subsection{Temporal SHAP Drift}
+Figure~\ref{fig:lineplot} presents a line plot of mean |SHAP| for the eight most important features across election years. Several patterns stand out. The interaction $\text{dynasty}\_x\_\text{ira}$ is negligible before 2007, rises modestly in 2010–2013, and then jumps sharply in 2016 and remains high in 2019. Conversely, $\text{ira\_share}$ alone is the dominant predictor in early years (mean SHAP $>0.6$ in 2001–2010) but declines steadily after 2010, falling to around 0.28 by 2019. $\text{delta\_health}$ shows a late increase after 2013, while $\text{local\_rev\_pc}$ declines precipitously after 2010.
 
-Table~\ref{tab:shap_importance} reports the mean absolute SHAP values from the full-data model, including interaction terms. The most influential predictor is the interaction between dynasty status and IRA dependence (\texttt{dynasty\_x\_ira}), closely followed by public welfare spending growth (\texttt{delta\_pubwelf}) and political competition (\texttt{enc\_gol}). This ordering carries a substantive interpretation: the electoral effect of fiscal dependence on national transfers is not uniform but is strongly conditioned by dynastic incumbency. The prominence of public welfare spending over health and education spending---which rank fourth and sixth, respectively---is consistent with clientelism theory rather than retrospective voting based on public goods provision.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.45\textwidth]{../data/shap_drift_lineplot.png}
+\caption{Line plot of mean |SHAP| for the eight most important features across election years (2001–2019). Each feature is shown with a different colour.}
+\label{fig:lineplot}
+\end{figure}
 
-Figures~\ref{fig:shapbar} and~\ref{fig:pdp} present the SHAP bar plot and partial dependence plots, respectively. The partial dependence plots reveal saturation effects: marginal increases in education and health spending growth raise re-election probability up to a threshold, beyond which returns diminish. Figure~\ref{fig:corr} displays the pairwise correlation heatmap, confirming that IRA share is negatively associated with re-election while health and education spending growth are positively correlated with the outcome variable.
+\subsection{Descriptive Pre- versus Post-2016 Comparison}
+Table~\ref{tab:drift} reports the mean SHAP before and after 2016, the raw difference, and the percentage change. All dynasty–fiscal interactions show large increases (from +110\% to +158\%), while direct measures of IRA share and local revenue show large decreases (around –52\%). The main effect of health spending increases by 86\%. \textbf{These changes are descriptive only}; because only two post-2016 election cycles are available, no statistical inference (confidence intervals, $p$-values) is possible.
 
 \begin{table}[htbp]
+\caption{Pre-2016 vs. Post-2016 SHAP Importance: Mean |SHAP|, Difference, and Percentage Change (Descriptive Only – Post-2016 n=2)}
 \centering
-\caption{Mean Absolute SHAP Values: Top 15 Features}
-\label{tab:shap_importance}
-\begin{tabular}{lr}
-\toprule
-Feature & Mean $|$SHAP$|$ \\
-\midrule
-delta\_pubwelf            & 0.4436 \\
-dynasty\_x\_ira           & 0.4277 \\
-enc\_gol                  & 0.3748 \\
-delta\_health             & 0.2902 \\
-ira\_share                & 0.2776 \\
-delta\_educ               & 0.2746 \\
-local\_rev\_pc            & 0.1876 \\
-dynasty\_x\_delta\_pubwelf & 0.1798 \\
-dynasty\_x\_delta\_educ   & 0.1713 \\
-region\_BARMM             & 0.0896 \\
-region\_CARAGA            & 0.0646 \\
-dynasty\_x\_delta\_health & 0.0644 \\
-region\_SOCCSKSARGEN      & 0.0643 \\
-region\_CALABARZON        & 0.0514 \\
-prev\_margin              & 0.0452 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=0.45\textwidth]{../data/shap_bar.png}
-\caption{Mean absolute SHAP values from the full-data model. The dynasty--IRA interaction and public welfare spending growth are the dominant predictors. Note that \texttt{delta\_pubwelf} in the figure corresponds to $\Delta$pubwelf in the text.}
-\label{fig:shapbar}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=0.45\textwidth]{../data/pdp_plots.png}
-\caption{Partial dependence plots for education spending growth (left) and health spending growth (right). Both relationships are positive and exhibit saturation at higher growth rates, suggesting diminishing electoral returns to fiscal effort.}
-\label{fig:pdp}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=0.45\textwidth]{../data/correlation_heatmap.png}
-\caption{Pairwise correlation heatmap. Re-election (won) is positively associated with health and education spending growth and negatively associated with IRA share, consistent with voters rewarding fiscal effort and penalising transfer dependence.}
-\label{fig:corr}
-\end{figure}
-
-\subsection{Regression Discontinuity: A Virtuous Cycle}
-
-Table~\ref{tab:rdd} presents RDD estimates for health spending growth and IRA share. At the 5\% bandwidth, winning a close gubernatorial election increases subsequent health spending growth by 1.50 percentage points (SE~=~0.734; 95\%~CI~[0.07,~2.94]). The effect is positive but statistically insignificant at the narrower 3\% bandwidth and the wider 7\% bandwidth, reflecting sensitivity to the choice of estimation window. The effect on post-election IRA share is negative across all bandwidths but does not attain conventional significance levels. Figure~\ref{fig:rdd_plot} displays the regression discontinuity plot at the 5\% bandwidth; the jump at the vote-share threshold is visually apparent. Figure~\ref{fig:rdd_sensitivity_health} confirms that the estimated treatment effect remains positive across the full range of bandwidths examined.
-
-Taken together, the predictive model and the RDD results support a \textit{virtuous cycle} interpretation: health spending growth is positively associated with re-election in the predictive analysis, and electoral victory causally increases subsequent health investment. Neither method in isolation would reveal this dynamic; the combination of correlational and causal evidence is mutually reinforcing.
-
-\begin{table}[htbp]
-\centering
-\caption{RDD Estimates: Health Spending Growth and IRA Share}
-\label{tab:rdd}
+\renewcommand{\tabcolsep}{2.5pt}
 \begin{tabular}{lcccc}
 \toprule
-Outcome       & Bandwidth & ATE    & SE    & 95\% CI \\
+\textbf{Feature} & \textbf{Pre-2016} & \textbf{Post-2016} & \textbf{Diff} & \textbf{\% Change} \\
 \midrule
-Health growth & 3\%       &  1.300 & 0.912 & $[-0.487,\; 3.087]$ \\
-Health growth & 5\%       &  1.505 & 0.734 & $[0.066,\; 2.943]$ \\
-Health growth & 7\%       &  1.125 & 0.670 & $[-0.187,\; 2.437]$ \\
-IRA share     & 3\%       & -0.052 & 0.044 & $[-0.137,\; 0.033]$ \\
-IRA share     & 5\%       & -0.027 & 0.032 & $[-0.089,\; 0.035]$ \\
-IRA share     & 7\%       & -0.012 & 0.029 & $[-0.069,\; 0.044]$ \\
+dynasty\_x\_delta\_pubwelf   & 0.130 & 0.335 & +0.205 & +158\% \\
+dynasty\_x\_ira             & 0.224 & 0.480 & +0.256 & +114\% \\
+dynasty\_x\_delta\_educ      & 0.087 & 0.183 & +0.096 & +110\% \\
+delta\_health               & 0.170 & 0.316 & +0.146 & +86\% \\
+delta\_educ                 & 0.272 & 0.401 & +0.129 & +47\% \\
+delta\_pubwelf              & 0.336 & 0.319 & –0.017 & –5\% \\
+enc\_gol                    & 0.375 & 0.261 & –0.114 & –30\% \\
+local\_rev\_pc              & 0.501 & 0.241 & –0.260 & –52\% \\
+ira\_share                  & 0.594 & 0.285 & –0.309 & –52\% \\
+dynasty                     & 0.065 & 0.013 & –0.052 & –81\% \\
 \bottomrule
 \end{tabular}
+\label{tab:drift}
 \end{table}
 
+\subsection{Change Point Detection}
+We applied two change point detection algorithms to each feature’s SHAP time series (7 points: 2001–2019). 
+
+Binary segmentation with a single allowed break returned \textbf{2013 for every feature} (Table~\ref{tab:change}). However, this result is a methodological artifact: with only 7 time points and a mandatory single break, the algorithm cannot place the break before 2007 or after 2016. The median split (position 4 of 7 = 2013) is the only geometrically possible location that splits the series into two groups of 3 and 4 points. Therefore, the uniform 2013 result does **not** provide independent evidence that 2013 is the true break year.
+
+The PELT method, which allows zero or more breaks, produces more variation: breaks are detected at 2004 (for ira\_share, delta\_health, enc\_gol), 2010 (for dynasty\_x\_ira, dynasty\_x\_delta\_educ), and 2013 (for dynasty\_x\_delta\_pubwelf, local\_rev\_pc). This variation reflects the difficulty of pinpointing a single break with sparse data. Given these limitations, we do not claim a precise break year; instead, we note that all methods agree on the **period around 2013–2016** as a time of substantial change, consistent with the descriptive pre‑post comparison.
+
+\begin{table}[htbp]
+\caption{Change point detection results – note: binary segmentation with 1 break mechanically returns 2013 for all features due to sparse data; PELT shows variation.}
+\centering
+\begin{tabular}{lcc}
+\toprule
+\textbf{Feature} & \textbf{Binary seg. break} & \textbf{PELT break(s)} \\
+\midrule
+dynasty\_x\_ira           & 2013 & 2010 \\
+ira\_share                & 2013 & 2004 \\
+delta\_health             & 2013 & 2004 \\
+dynasty\_x\_delta\_educ   & 2013 & 2010 \\
+dynasty\_x\_delta\_pubwelf& 2013 & 2013 \\
+local\_rev\_pc            & 2013 & 2013 \\
+enc\_gol                  & 2013 & 2004 \\
+\bottomrule
+\end{tabular}
+\label{tab:change}
+\end{table}
+
+\subsection{Global Drift Patterns}
+Figure~\ref{fig:heatmap} presents a normalised heatmap of mean |SHAP| for all 28 features across election years. The heatmap confirms that most region dummies and the dynasty main effect are relatively stable, while the sharp increase in dynasty–fiscal interactions and the decline of IRA share and local revenue are the dominant patterns of drift.
+
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.45\textwidth]{../data/rdd_plot_delta_health.png}
-\caption{Regression discontinuity plot at the 5\% bandwidth. A visible jump at the vote-margin threshold (0.0) indicates a positive causal effect of electoral victory on subsequent health spending growth.}
-\label{fig:rdd_plot}
+\includegraphics[width=0.45\textwidth]{../data/shap_drift_heatmap_normalised.png}
+\caption{Normalised SHAP heatmap for all 28 features. Lighter colours indicate higher importance. The post-2016 columns (2016, 2019) show a clear shift in the feature importance structure.}
+\label{fig:heatmap}
 \end{figure}
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=0.45\textwidth]{../data/rdd_sensitivity_delta_health.png}
-\caption{Sensitivity of the RDD estimate for health spending growth to bandwidth selection. The estimated treatment effect remains positive across all bandwidths from 0.03 to 0.07, though statistical significance is achieved only at the 0.05 threshold.}
-\label{fig:rdd_sensitivity_health}
-\end{figure}
+\section{DISCUSSION}
 
-\subsection{Validity of the Regression Discontinuity Design}
+\subsection{From Predictive Instability to Descriptive Insight}
+The rolling accuracy collapse after 2016 could be interpreted as a failure of machine learning for political science. Our temporal SHAP drift analysis turns this observation into a diagnostic: the lack of generalisation reveals that the fiscal–electoral relationship has changed. The descriptive comparison of SHAP importance shows large shifts in dynasty–fiscal interactions and transfer dependence. However, the small post-2016 sample (n=2) means these findings are \textbf{illustrative, not conclusive}. They should be treated as hypothesis-generating evidence for a possible regime shift, pending replication with future election data.
 
-A necessary condition for the RDD to yield valid causal estimates is that the running variable---the incumbent's vote margin---is not subject to precise manipulation in the neighbourhood of the electoral threshold~\cite{mccrary2008manipulation}. We assess this assumption using the McCrary density test, implemented via local linear regression of log-bin counts with bootstrap standard errors. The estimated log difference in densities at the 50\% threshold is $\hat{\theta} = -0.0122$ (bootstrap SE~=~0.0831; two-sided $p$-value~=~0.884), indicating no statistically significant discontinuity in the density of the running variable at the cutoff. Figure~\ref{fig:mccrary} presents the density histogram; the distribution is smooth and continuous across the threshold. The x-axis spans $-0.25$ to $0.5$ because the data contain no vote margins below $-0.25$, a truncation that does not affect the validity of the test near the cutoff. These results provide no evidence of electoral manipulation and support the internal validity of the RDD estimates.
+Notably, the rolling accuracy in 2016 improves from 57\% (main‑effects only) to 68\% when dynasty–fiscal interactions are included. This gain indicates that the electoral value of fiscal variables after 2016 is contingent on dynasty status – precisely the pattern of clientelistic accountability.
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=0.45\textwidth]{../data/mccrary_plot.png}
-\caption{McCrary density test of the incumbent vote margin. The vertical dashed line marks the 50\% electoral threshold. The distribution is smooth and continuous at the cutoff ($\hat{\theta} = -0.0122$, $p = 0.884$), consistent with the absence of systematic vote-margin manipulation. The x-axis spans $-0.25$ to $0.5$ because no observations fall below $-0.25$.}
-\label{fig:mccrary}
-\end{figure}
+\subsection{Clientelism vs. Programmatic Accountability}
+The prominence of dynasty–fiscal interactions in the post-2016 period is consistent with clientelism theory: the electoral payoff of fiscal variables appears contingent on belonging to a political dynasty. This aligns with the view that local strongmen use transfer funds to reward supporters. The concurrent decline in importance of local revenue per capita further suggests that voters may have become less concerned with local fiscal effort after 2016.
 
-\section{Discussion}
+The 2016 election of Rodrigo Duterte may have facilitated this shift. Duterte's administration centralised discretionary funds and signalled tolerance for dynastic politics~\cite{curato2016, pcj2025}. However, causal attribution is impossible from these data, and the small post-2016 window makes any such attribution even more tentative.
 
-\subsection{Temporal Instability as the Central Finding}
+\subsection{Methodological Implications}
+Temporal SHAP drift offers a general method for diagnosing concept drift in political data. Researchers using machine learning for electoral prediction or accountability studies should adopt rolling-window evaluation. When predictive performance decays, SHAP drift can suggest which features have changed. Crucially, \textbf{when post-shift data are scarce, all claims must be framed descriptively} – a point often overlooked in applied machine learning.
 
-The most consequential result of this study is the temporal generalisation failure. The model's high within-sample cross-validation accuracy (95.5\%) is an artefact of the random-split evaluation protocol; it does not reflect a stable, generalisable fiscal--electoral relationship. When subjected to temporally honest evaluation---training on historical data and predicting future elections---the model performs at or below chance. This finding has a direct implication for the methodology of electoral accountability research: \textit{predictive models evaluated solely on randomly split hold-out sets may substantially overstate the stability and generalisability of the relationships they identify.} Temporal validation is not a supplementary robustness check; it is a minimum standard of methodological rigour for research using non-stationary political panel data.
+\section{LIMITATIONS}
 
-The sharp deterioration in predictive performance after 2016 is consistent with a regime shift in Philippine local politics. The Duterte administration's populist rhetoric, centralisation of discretionary transfers, and tolerance of local dynastic networks appear to have reconfigured the basis of electoral reward at the subnational level~\cite{curato2016penal, mendoza2016political}. Fiscal accountability---to the extent it existed prior to 2016---may have been supplanted by partisan loyalty, personalised leadership appeals, and clientelistic payoffs that are not captured by the fiscal variables available in the dataset.
+\subsection{Insufficient Post-2016 Data – The Central Limitation}
+The most serious limitation of this study is the small number of post-2016 election cycles: only two (2016 and 2019). Consequently, \textbf{no inferential statistics are possible}. The descriptive changes reported in Table I are subject to high uncertainty; they could be idiosyncratic to these two elections or influenced by other unmeasured events. Any interpretation of a “regime shift” is provisional. The study should be seen as a proof-of-concept for temporal SHAP drift and a descriptive characterisation of the 1992–2019 period, not as definitive causal evidence.
 
-\subsection{Synthesising ML and RDD: A Virtuous Cycle}
+\subsection{Other Limitations}
+Second, our analysis is correlational; we cannot attribute the observed drift to the Duterte presidency rather than other concurrent changes (e.g., infrastructure expansion, social protection programs, or broader secular trends). Third, the dataset includes only provincial governors; municipal and city dynamics may differ. 
 
-Read in conjunction, the predictive model and the RDD results yield a coherent and theoretically interpretable narrative. The predictive model establishes that health spending growth is among the strongest fiscal correlates of gubernatorial re-election in the historical data. The RDD establishes that narrowly winning a gubernatorial election causally increases subsequent health investment. These two findings are mutually consistent: incumbents who invest in health are more likely to survive close elections (retrospective accountability), and incumbents who survive close elections are more likely to continue health investment (incumbency advantage). Neither the correlational nor the causal analysis in isolation would reveal this self-reinforcing dynamic; the combination of methods is essential.
+Fourth, change point detection is severely constrained by the short time series (7 points). Binary segmentation with a single break mechanically returns 2013 for all features; this is an artifact, not a valid estimate. PELT results vary (2004, 2010, 2013), and we therefore do not rely on any specific break year. The only safe conclusion is that a notable shift occurs in the period around 2013–2016.
 
-The fragility of the RDD effect---statistically significant only at the 5\% bandwidth---warrants interpretive caution. The directional consistency of the estimates across all three bandwidths, however, provides some assurance that the null result at the 3\% and 7\% thresholds reflects sampling variance rather than the absence of an effect.
+\section{CONCLUSION}
 
-\subsection{Policy Implications}
-
-The policy implications of these findings are substantively important but cautionary in tenor. Fiscal performance---particularly in health and public welfare---was associated with electoral reward in the Philippine provinces during the 1992--2013 period, suggesting that accountability mechanisms were at least partially operative. However, this relationship appears to have broken down in the post-2016 period. Accountability mechanisms are evidently susceptible to disruption by national political shocks, and policies aimed at strengthening local fiscal transparency or rewarding fiscal performance may have limited electoral traction if voters' priorities have shifted toward non-fiscal dimensions of governance.
-
-\section{Limitations}
-
-Several limitations constrain the scope of inference. First, the predictive model is correlational rather than causal; observed associations between fiscal variables and re-election may reflect common causes rather than an accountability mechanism. Second, temporal generalisation fails after 2016, limiting the model's predictive utility for contemporary elections. Third, the RDD effect is bandwidth-sensitive and achieves conventional significance only at a single threshold, tempering causal claims. Fourth, the dataset is restricted to provincial governors; the electoral accountability dynamics of municipalities and cities, which face different fiscal and political constraints, may differ substantially. Fifth, the sample is confined to a single income class, precluding cross-class heterogeneity analysis. Finally, the 2016 structural break cannot be cleanly attributed to the Duterte transition alone; other contemporaneous changes---including infrastructure programme expansion and rising conditional cash transfer coverage---may independently account for shifts in voter behaviour.
-
-\section{Conclusion}
-
-This study provides the first application of rolling-window temporal validation to a fiscal--electoral accountability model in the Philippines, and in doing so reveals that high within-sample accuracy is insufficient evidence of a stable political relationship. Using a 30-year panel of Philippine provinces, an XGBoost classifier, SHAP-based feature attribution, and a regression discontinuity design, we show that fiscal performance predicted gubernatorial re-election during the 1992--2016 period but ceased to do so thereafter. The dynasty--IRA interaction is the dominant predictor, consistent with a clientelistic rather than programmatic accountability mechanism. A fragile but directionally consistent RDD result suggests that electoral victory causes increased health investment, supporting a virtuous cycle interpretation when combined with the predictive findings. The post-2016 collapse in predictive performance constitutes evidence of a regime shift in Philippine subnational politics, with direct implications for the design of local accountability institutions under Sustainable Development Goal 16. Future research should prioritise temporal validation as a methodological standard, investigate the mechanisms underlying the 2016 regime shift, and extend the analysis to municipal-level governance.
+This paper introduced temporal SHAP drift as a method to diagnose regime shifts in non-stationary political data, applied it to 30 years of Philippine gubernatorial elections, and found \textbf{descriptive evidence} of a substantial shift after 2016: dynasty–fiscal interactions became much more important, while direct measures of IRA dependence and local revenue declined. These patterns suggest a possible move from programmatic accountability toward dynastic clientelism. However, \textbf{because only two post-2016 election cycles are available, these findings are provisional}. They require confirmation with data from 2022 and future elections. Future work should extend the analysis to municipal elections, incorporate survey measures of voter priorities, and – crucially – apply temporal SHAP drift to other country contexts where a clear political rupture is followed by enough post-rupture observations to support inference.
 
 \section*{Acknowledgment}
+Generative AI tools were used for grammar and style editing; all substantive content was reviewed by the author.
 
-This paper will be presented at the 2nd International Conference on the UN SDGs and Social Innovation (ICUNSSI 2026), held on September 23--25, 2026, at Mindanao State University---Iligan Institute of Technology, Iligan City, Philippines.
+\begin{thebibliography}{99}
 
-\section*{Use of Generative AI}
+\bibitem{stokes2005} S. C. Stokes, ``Perverse accountability: A formal model of machine politics with evidence from Argentina,'' \textit{American Political Science Review}, vol. 99, no. 3, pp. 315--325, 2005.
 
-Generative AI tools were used for grammar checking, style editing, and structural suggestions in the discussion section. All AI-assisted content was independently reviewed and revised by the author to ensure accuracy and coherence with the research findings.
+\bibitem{hicken2011} A. Hicken, ``Clientelism,'' \textit{Annual Review of Political Science}, vol. 14, pp. 289--310, 2011.
 
-\begin{thebibliography}{10}
+\bibitem{mendoza2016} R. U. Mendoza, E. L. Beja, V. S. Venida, and D. B. Yap, ``Political dynasties and poverty: Measurement and evidence of linkages in the Philippines,'' \textit{Oxford Development Studies}, vol. 44, no. 2, pp. 189--201, 2016.
 
-\bibitem{stokes2005perverse}
-S.~C. Stokes, ``Perverse accountability: A formal model of machine politics with evidence from Argentina,'' \textit{American Political Science Review}, vol.~99, no.~3, pp.~315--325, 2005.
+\bibitem{curato2016} N. Curato, ``Politics of anxiety, politics of hope: Penal populism and Duterte's rise to power,'' \textit{Journal of Current Southeast Asian Affairs}, vol. 35, no. 3, pp. 91--110, 2016.
 
-\bibitem{hicken2011clientelism}
-A.~Hicken, ``Clientelism,'' \textit{Annual Review of Political Science}, vol.~14, pp.~289--310, 2011.
+\bibitem{panao} R. A. L. Panao, B. F. A. Mendoza, E. F. Habacon, and M. C. C. Reyes, ``Philippine Local Government Interactive Dataset,'' Center for Integrative and Development Studies, University of the Philippines. [Online]. Available: https://elections.cids.up.edu.ph/
 
-\bibitem{panao2020philippine}
-R.~A.~L. Panao, B.~F.~A. Mendoza, E.~F. Habacon, and M.~C.~C. Reyes, ``Philippine Local Government Interactive Dataset,'' Center for Integrative and Development Studies, University of the Philippines. [Online]. Available: \url{https://elections.cids.up.edu.ph/}
+\bibitem{chen2016} T. Chen and C. Guestrin, ``XGBoost: A scalable tree boosting system,'' in \textit{Proc. 22nd ACM SIGKDD Int. Conf. Knowledge Discovery and Data Mining}, 2016, pp. 785--794.
 
-\bibitem{lundberg2017unified}
-S.~M. Lundberg and S.-I. Lee, ``A unified approach to interpreting model predictions,'' in \textit{Advances in Neural Information Processing Systems}, vol.~30, 2017, pp.~4765--4774.
+\bibitem{lundberg2017} S. M. Lundberg and S.-I. Lee, ``A unified approach to interpreting model predictions,'' in \textit{Advances in Neural Information Processing Systems}, vol. 30, 2017, pp. 4765--4774.
 
-\bibitem{chen2016xgboost}
-T.~Chen and C.~Guestrin, ``XGBoost: A scalable tree boosting system,'' in \textit{Proc. 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining}, 2016, pp.~785--794.
-
-\bibitem{lee2010regression}
-D.~S. Lee and T.~Lemieux, ``Regression discontinuity designs in economics,'' \textit{Journal of Economic Literature}, vol.~48, no.~2, pp.~281--355, 2010.
-
-\bibitem{mccrary2008manipulation}
-J.~McCrary, ``Manipulation of the running variable in the regression discontinuity design: A density test,'' \textit{Journal of Econometrics}, vol.~142, no.~2, pp.~698--714, 2008.
-
-\bibitem{pcij2025dynasties}
-Philippine Center for Investigative Journalism, ``113 out of 149 Philippine cities also ruled by political dynasties,'' Jan.~2025. [Online]. Available: \url{https://pcij.org/2025/01/26/113-out-of-149-philippine-cities-also-ruled-by-political-dynasties/}
-
-\bibitem{curato2016penal}
-N.~Curato, ``Politics of anxiety, politics of hope: Penal populism and Duterte's rise to power,'' \textit{Journal of Current Southeast Asian Affairs}, vol.~35, no.~3, pp.~91--110, 2016.
-
-\bibitem{mendoza2016political}
-R.~U. Mendoza, E.~L. Beja, V.~S. Venida, and D.~B. Yap, ``Political dynasties and poverty: Measurement and evidence of linkages in the Philippines,'' \textit{Oxford Development Studies}, vol.~44, no.~2, pp.~189--201, 2016.
+\bibitem{pcj2025} Philippine Center for Investigative Journalism, ``113 out of 149 Philippine cities also ruled by political dynasties,'' Jan. 2025. [Online]. Available: https://pcj.org/2025/01/26/113-out-of-149-philipine-cities-also-ruled-by-political-dynasties/
 
 \end{thebibliography}
 

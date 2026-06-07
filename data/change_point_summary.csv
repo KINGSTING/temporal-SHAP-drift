@@ -1,0 +1,8 @@
+feature,binary_break_year,pelt_break_years
+dynasty_x_ira,2013.0,[np.float64(2010.0)]
+ira_share,2013.0,[np.float64(2004.0)]
+delta_health,2013.0,[np.float64(2004.0)]
+dynasty_x_delta_educ,2013.0,[np.float64(2010.0)]
+dynasty_x_delta_pubwelf,2013.0,[np.float64(2013.0)]
+local_rev_pc,2013.0,[np.float64(2013.0)]
+enc_gol,2013.0,[np.float64(2004.0)]
