@@ -218,7 +218,7 @@ for i, test_year in enumerate(years):
     shap_records.append(yearly_shap)
 
 # ------------------------------------------------------------
-# Plot and save rolling accuracy
+# Plot and save rolling accuracy (with corrected y-axis)
 # ------------------------------------------------------------
 years_plot, acc_plot = zip(*results)
 plt.figure(figsize=(8, 5))
@@ -228,6 +228,7 @@ plt.axvline(x=2016, color='orange', linestyle='--', label='2016 election')
 plt.xlabel('Test election year')
 plt.ylabel('Accuracy')
 plt.title('Rolling‑window temporal validation (with interactions)')
+plt.ylim(0, 1)                     # Full y-axis range – honest scaling
 plt.legend()
 plt.grid(True, alpha=0.3)
 plt.savefig('../data/rolling_cv.png', dpi=300)
