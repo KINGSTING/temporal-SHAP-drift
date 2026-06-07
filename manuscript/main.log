@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.3.23)  7 JUN 2026 14:12
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.3.23)  7 JUN 2026 14:21
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -298,13 +298,13 @@ File: ../data/shap_drift_heatmap_normalised.png Graphic file (type png)
 Package pdftex.def Info: ../data/shap_drift_heatmap_normalised.png  used on input line 177.
 (pdftex.def)             Requested size: 232.19843pt x 185.75603pt.
  [3 <../data/rolling_cv.png> <../data/shap_drift_lineplot.png>] [4 <../data/shap_drift_heatmap_normalised.png>]
-Underfull \hbox (badness 1902) in paragraph at lines 230--231
+Underfull \hbox (badness 1902) in paragraph at lines 233--234
 []\OT1/ptm/m/n/8 Philippine Cen-ter for In-ves-tiga-tive Jour-nal-ism, ``113 out of 149
  []
 
 
-Underfull \hbox (badness 3872) in paragraph at lines 230--231
-\OT1/ptm/m/n/8 Philip-pine cities also ruled by po-lit-i-cal dy-nas-ties,'' Jan. 2025.
+Underfull \hbox (badness 2261) in paragraph at lines 233--234
+\OT1/ptm/m/n/8 line]. Avail-able: https://pcj.org/2025/01/26/113-out-of-149-philippine-
  []
 
 
@@ -335,7 +335,7 @@ Here is how much of TeX's memory you used:
  1144 hyphenation exceptions out of 8191
  57i,11n,65p,1744b,258s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (5 pages, 787603 bytes).
+Output written on main.pdf (5 pages, 788351 bytes).
 PDF statistics:
  83 PDF objects out of 1000 (max. 8388607)
  47 compressed objects within 1 object stream

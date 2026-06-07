@@ -46,7 +46,7 @@ Our temporal SHAP drift approach allows us to test the regime shift hypothesis d
 
 \section{DATA AND VARIABLES}
 
-We combine fiscal panel data from the Philippine Local Government Interactive Dataset~\cite{panao} with gubernatorial election results from 1992 to 2022. The unit of analysis is the province–election cycle (3-year terms). The final sample includes 1,682 observations, of which 787 are successful re-election bids.
+We combine fiscal panel data from the Philippine Local Government Interactive Dataset~\cite{panao} with gubernatorial election results from 1992 to 2022. The unit of analysis is the province–election cycle (3-year terms). The final sample includes 1,682 observations from election cycles between 1992 and 2019, of which 787 are successful re-election bids. The 2022 election cycle is not included as a test year because post-election fiscal data for 2023–2025 are not yet available; therefore the analysis ends with the 2019 election.
 
 \subsection{Fiscal Variables}
 Per-capita spending growth rates ($\Delta$) are computed for three categories: health, education, and public welfare. Local revenue per capita ($\text{local\_rev\_pc}$) and IRA share (the Internal Revenue Allotment as a share of total income, $\text{ira\_share}$) measure fiscal capacity and transfer dependence. All growth rates are winsorised at $[-0.9, 5]$.
@@ -199,6 +199,9 @@ Temporal SHAP drift offers a general method for diagnosing concept drift in poli
 \subsection{Insufficient Post-2016 Data – The Central Limitation}
 The most serious limitation of this study is the small number of post-2016 election cycles: only two (2016 and 2019). Consequently, \textbf{no inferential statistics are possible}. The descriptive changes reported in Table I are subject to high uncertainty; they could be idiosyncratic to these two elections or influenced by other unmeasured events. Any interpretation of a “regime shift” is provisional. The study should be seen as a proof-of-concept for temporal SHAP drift and a descriptive characterisation of the 1992–2019 period, not as definitive causal evidence.
 
+\subsection{2022 Election Not Included}
+The raw dataset includes the 2022 election, but it could not be used as a test year because post‑election fiscal data (2023–2025) are not yet available. Our methodology requires three years of post‑election spending to compute growth rates. Once the 2023–2025 fiscal figures are released, the 2022 election can be added as a third post‑2016 point, which would meaningfully strengthen the descriptive case for a regime shift by increasing the post‑2016 sample to three cycles.
+
 \subsection{Other Limitations}
 Second, our analysis is correlational; we cannot attribute the observed drift to the Duterte presidency rather than other concurrent changes (e.g., infrastructure expansion, social protection programs, or broader secular trends). Third, the dataset includes only provincial governors; municipal and city dynamics may differ. 
 
@@ -206,7 +209,7 @@ Fourth, change point detection is severely constrained by the short time series 
 
 \section{CONCLUSION}
 
-This paper introduced temporal SHAP drift as a method to diagnose regime shifts in non-stationary political data, applied it to 30 years of Philippine gubernatorial elections, and found \textbf{descriptive evidence} of a substantial shift after 2016: dynasty–fiscal interactions became much more important, while direct measures of IRA dependence and local revenue declined. These patterns suggest a possible move from programmatic accountability toward dynastic clientelism. However, \textbf{because only two post-2016 election cycles are available, these findings are provisional}. They require confirmation with data from 2022 and future elections. Future work should extend the analysis to municipal elections, incorporate survey measures of voter priorities, and – crucially – apply temporal SHAP drift to other country contexts where a clear political rupture is followed by enough post-rupture observations to support inference.
+This paper introduced temporal SHAP drift as a method to diagnose regime shifts in non-stationary political data, applied it to 30 years of Philippine gubernatorial elections (1992–2019, with the 2022 election pending future fiscal data), and found \textbf{descriptive evidence} of a substantial shift after 2016: dynasty–fiscal interactions became much more important, while direct measures of IRA dependence and local revenue declined. These patterns suggest a possible move from programmatic accountability toward dynastic clientelism. However, \textbf{because only two post-2016 election cycles are available, these findings are provisional}. Once the missing 2023–2025 fiscal data become available, the 2022 election can be added as a third post‑2016 test year, providing a more robust descriptive check. Future work should extend the analysis to municipal elections, incorporate survey measures of voter priorities, and – crucially – apply temporal SHAP drift to other country contexts where a clear political rupture is followed by enough post‑rupture observations to support inference.
 
 \section*{Acknowledgment}
 Generative AI tools were used for grammar and style editing; all substantive content was reviewed by the author.
@@ -227,7 +230,7 @@ Generative AI tools were used for grammar and style editing; all substantive con
 
 \bibitem{lundberg2017} S. M. Lundberg and S.-I. Lee, ``A unified approach to interpreting model predictions,'' in \textit{Advances in Neural Information Processing Systems}, vol. 30, 2017, pp. 4765--4774.
 
-\bibitem{pcj2025} Philippine Center for Investigative Journalism, ``113 out of 149 Philippine cities also ruled by political dynasties,'' Jan. 2025. [Online]. Available: https://pcj.org/2025/01/26/113-out-of-149-philipine-cities-also-ruled-by-political-dynasties/
+\bibitem{pcj2025} Philippine Center for Investigative Journalism, ``113 out of 149 Philippine cities also ruled by political dynasties,'' Jan. 2025. [Online]. Available: https://pcj.org/2025/01/26/113-out-of-149-philippine-cities-also-ruled-by-political-dynasties/
 
 \end{thebibliography}
 
