@@ -1,202 +1,88 @@
-# Fiscal Accountability or Regime Shift?  
-### Machine Learning and Causal Evidence from Philippine Gubernatorial Elections (1992–2022)
+# Temporal SHAP Drift: Diagnosing Regime Shifts in Philippine Gubernatorial Elections (1992–2022)
 
-[![DOI](https://img.shields.io/badge/DOI-pending-red)]()
+[![Python Support](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)]()
 
-**Author:** Jemar John J. Lumingkit  
-**Affiliation:** Mindanao State University – Iligan Institute of Technology  
-**Contact:** [jemar.lumingkit@g.msuiit.edu.ph](mailto:jemar.lumingkit@g.msuiit.edu.ph)  
-**Conference:** 2nd International Conference on the UN SDGs and Social Innovation (ICUNSSI 2026)
+This repository contains the dataset, results, and visualization assets for the research paper: **"Temporal SHAP Drift: Diagnosing Regime Shifts in Philippine Gubernatorial Elections (1992–2022)"**.
 
----
+The project introduces **Temporal SHAP Drift**, a machine learning diagnostic framework that tracks the evolution of SHAP (SHapley Additive exPlanations) feature importance across time. Instead of treating predictive instability as a model failure, this methodology uses expanding-window validation to detect and interpret structural breaks (regime shifts) in non-stationary political environments.
 
-## 📌 Overview
+## 📊 Key Findings & Visualizations
 
-This repository contains the complete replication package for the paper:
+The analysis reveals a substantial reordering of electoral incentives following the 2016 national political transition in the Philippines, shifting from programmatic fiscal accountability toward dynastic clientelism.
 
-> *Fiscal Accountability or Regime Shift? Machine Learning and Causal Evidence from Philippine Gubernatorial Elections (1992–2022)*
+### 1. The Diagnostic Signal: Predictive Instability
+Model accuracy fluctuates around random chance until peaking at the 2016 transition, indicating a fundamental shift in the underlying electoral logic that traditional, static models fail to capture.
 
-Using a 30‑year panel of Philippine provinces, an **XGBoost classifier** with **SHAP** feature attribution, and a **regression discontinuity design (RDD)**, we show that:
+![Rolling Window Validation Accuracy](data/rolling_cv.png)
 
-- High within‑sample accuracy (95.5%) **masks a complete temporal generalisation failure**.
-- Rolling‑window validation yields out‑of‑sample accuracy of only **37–57%** – barely above random guessing.
-- Predictive performance collapses sharply after the **2016 Duterte presidential transition**, indicating a **regime shift** in local accountability.
-- The **dynasty–IRA dependence interaction** is the most important predictor, supporting **clientelism** over programmatic accountability.
-- Winning a close election **causally increases subsequent health spending** (ATE ≈ 1.5 p.p.), consistent with a **virtuous cycle** of incumbency and fiscal effort.
+### 2. Temporal SHAP Drift (Top Features)
+This line plot tracks the mean absolute SHAP value for key predictors over time. Notice the dramatic post-2016 spike in the importance of dynastic interaction terms (`dynasty_x_ira`, `dynasty_x_delta_pubwelf`) and the simultaneous collapse of standard fiscal indicators (`ira_share`, `local_rev_pc`).
 
-**Main methodological contribution:** Temporal validation is not optional – it is a minimum standard for non‑stationary political panel data.
+![Temporal SHAP Drift Line Plot](data/shap_drift_lineplot.png)
 
----
+### 3. Structural Break Heatmap
+A normalized heatmap of all feature importances across election cycles. The visual break between 2013 and 2016 is evident, showing a clear regime shift in subnational political behavior.
 
-## 🔍 Key Findings (At a Glance)
+![Temporal SHAP Drift Heatmap (Normalised)](data/shap_drift_heatmap_normalised.png)
 
-| Finding | Detail |
-|---------|--------|
-| Within‑sample accuracy (5‑fold CV) | 95.5% (AUC = 0.984) |
-| Out‑of‑sample (rolling window) | 37.4% – 57.3% (≤ random guessing) |
-| Post‑2016 aggregated accuracy | 49.4% (worse than coin flip) |
-| Dominant predictor | `dynasty × ira_share` (clientelistic) |
-| Public welfare spending rank | 2nd most important |
-| Health spending rank | 4th most important |
-| RDD effect on health spending | +1.50 p.p. at 5% bandwidth (95% CI [0.07, 2.94]) |
-| McCrary test for manipulation | p = 0.884 → no evidence of vote‑margin manipulation |
+### 4. Quantifying the Regime Shift
+A direct comparison of feature importance before and after the 2016 election, highlighting the percentage change in predictive power for each variable.
+
+![Change in SHAP Importance (Pre vs. Post 2016)](data/shap_change_pre_post.png)
+
+### 5. Change Point Detection
+Algorithmic detection (Binary Segmentation and PELT) applied to the time series of SHAP values to statistically isolate the structural breaks in the dataset.
+
+![Change Point Detection Analysis](data/change_point_detection.png)
 
 ---
 
-## 🧪 Methodology
+## 📂 Repository Structure: `data/` Directory
 
-### Predictive Model
-- **Algorithm:** XGBoost (200 estimators, max depth 5, lr=0.05)
-- **Evaluation:** 5‑fold stratified cross‑validation *vs.* rolling‑window temporal validation
-- **Interpretability:** SHAP (mean absolute values) + partial dependence plots
-- **Baselines:** Logistic regression, random forest, LightGBM
+The `data/` directory contains all raw inputs, processed panels, and generated outputs required to reproduce the study's findings.
 
-### Causal Inference
-- **Design:** Sharp Regression Discontinuity (incumbent’s vote margin ≥ 0.5)
-- **Bandwidths:** 3%, 5%, 7% with triangular kernel
-- **Validity test:** McCrary density test for manipulation
+### Raw & Processed Datasets
+*   `full_panel_all_sectors.csv`: The primary, cleaned panel dataset combining 30 years of fiscal and electoral data.
+*   `fiscal+electoral_data_July 2025.xlsx`: Master integration of financial metrics and election outcomes.
+*   `election_data.xlsx` / `fiscal_data.xlsx`: Raw, disaggregated source files from the Philippine Local Government Interactive Dataset.
+*   `2024_T1_1.xlsx` / `2025_T1_1.xlsx`: Supplementary time-series data chunks.
 
-### Data
-- **Period:** 1992–2022
-- **Units:** 227 Philippine provinces (LGUs)
-- **Observations:** 1,682 incumbent re‑election bids (787 wins, 895 losses)
-- **Sources:** Philippine Local Government Interactive Dataset, PSA censuses
+### Tabular Results
+*   `temporal_shap_drift.csv`: The core output file containing the computed mean |SHAP| values for every feature across every tested election year.
+*   `pre_post_summary.csv`: Aggregated comparison metrics detailing the percentage change and confidence intervals for features pre- and post-2016.
+*   `change_point_summary.csv`: Output from the `ruptures` library detailing the identified structural break years per feature.
+*   `shap_drift_stats.csv`: General descriptive statistics of the SHAP distributions.
 
----
-
-## 📁 Repository Structure
-
-├── data/ # Raw and processed data (see data dictionary)
-├── code/
-│ ├── 01_preprocess.py # Merging fiscal/election data, interpolation
-│ ├── 02_xgboost_model.py # XGBoost with SHAP and rolling validation
-│ ├── 03_rdd_analysis.R # RDD estimation + McCrary test
-│ └── 04_figures.py # Generate all paper figures
-├── results/ # Outputs: tables, figures, SHAP values
-├── requirements.txt # Python dependencies
-├── renv.lock # R dependencies (if using renv)
-└── README.md
-text
-
+### Additional Visualizations
+*   `shap_drift_faceted.png`: Individual, faceted trend lines for detailed feature inspection.
+*   `shap_drift_heatmap.png`: The raw (non-normalized) heatmap of feature importance.
+*   `shap_drift_relative.png`: Feature importance scaled relative to baseline years.
+*   `shap_pre_post_comparison.png`: Alternative bar-chart representation of the pre/post-2016 shift.
 
 ---
 
-## 🚀 Reproduction Instructions
+## 💻 Setup & Usage
 
-### 1. Clone the repository
+To reproduce the environment and regenerate the visualizations, ensure you have a standard Python data science stack installed (`pandas`, `xgboost`, `shap`, `ruptures`, `matplotlib`, `seaborn`). 
+
+Assuming a Linux/Debian-based environment (e.g., Pop!_OS or Ubuntu):
+
+1. **Activate your virtual environment:**
 ```bash
-git clone https://github.com/yourusername/ph-gubernatorial-fiscal-rdd.git
-cd ph-gubernatorial-fiscal-rdd
+   source venv/bin/activate
 
-2. Set up Python environment
-bash
+    Navigate to the project directory:
 
-python -m venv venv
-source venv/bin/activate   # Windows: venv\Scripts\activate
-pip install -r requirements.txt
+Bash
 
-3. Set up R environment (for RDD)
-R
+   cd ~/Documents/Research/temporal-SHAP-drift/
 
-install.packages(c("rdd", "rddtools", "ggplot2"))
-
-4. Run the analysis pipeline
-bash
-
-python code/01_preprocess.py
-python code/02_xgboost_model.py
-Rscript code/03_rdd_analysis.R
-python code/04_figures.py
-
-All outputs (tables, figures, SHAP values) will be saved in results/.
+    (Add instructions here for executing your specific Python scripts, e.g., python src/rolling_cv.py or python src/shap_plots.py)
 ```
+    
+📝 Citation
 
-    Note: The raw fiscal and election data are not publicly redistributable but can be obtained from the Philippine Local Government Interactive Dataset. Place downloaded files in data/raw/.
+If you utilize this methodological framework, dataset, or code in your research, please cite the paper:
 
-📊 Key Results (Recreated from Paper)
-Table 1 – Rolling‑Window Test Accuracy
-Election Year	Accuracy
-2001	37.4%
-2004	39.8%
-2007	51.0%
-2010	44.1%
-2013	51.1%
-2016	57.3%
-2019	53.4%
-2022	49.4%
-Table 2 – RDD Estimates (Health Spending Growth)
-Bandwidth	ATE (p.p.)	95% CI
-3%	1.30	[-0.49, 3.09]
-5%	1.50	[0.07, 2.94]
-7%	1.13	[-0.19, 2.44]
-
-Figure Previews
-
-Figure 3 – Rolling‑window accuracy over time (sharp drop after 2016)
-![rolling_cv](data/rolling_cv.png)
-
-Figure 7 – RDD plot showing jump in health spending at the 50% threshold
-h![rolling_cv](data/rdd_sensitivity_delta_health.png)
-
-    If the above images do not render, please ensure the PNG files are placed in the data/ directory with the exact names fig3_rolling_accuracy.png and fig7_rdd_plot.png (or adjust the paths accordingly).
-
-🛠 Dependencies
-Python (≥3.9)
-
-    xgboost
-
-    shap
-
-    pandas, numpy, scikit-learn
-
-    matplotlib, seaborn
-
-    lightgbm (baseline)
-
-R (≥4.0)
-
-    rdd
-
-    rddtools
-
-    tidyverse
-
-Full list in requirements.txt and renv.lock.
-📄 Citation
-
-If you use this code or data in your own work, please cite:
-bibtex
-
-@inproceedings{lumingkit2026fiscal,
-  author    = {Jemar John J. Lumingkit},
-  title     = {Fiscal Accountability or Regime Shift? Machine Learning and Causal Evidence from Philippine Gubernatorial Elections (1992–2022)},
-  booktitle = {Proceedings of the 2nd International Conference on the UN SDGs and Social Innovation (ICUNSSI)},
-  year      = {2026},
-  address   = {Iligan City, Philippines},
-  month     = {September},
-  note      = {Forthcoming}
-}
-
-📜 License
-
-This project is licensed under the MIT License – see the LICENSE file for details.
-
-🙏 Acknowledgments
-
-    Philippine Local Government Interactive Dataset team for making the data available.
-
-    Mindanao State University – IIT for conference support.
-
-    This paper will be presented at ICUNSSI 2026 (Sept 23–25, 2026).
-
-🤖 Use of Generative AI
-
-Generative AI tools were used for grammar checking, style editing, and structural suggestions in the discussion section of the paper. All AI‑assisted content was independently reviewed and revised by the author. No AI was used for data analysis or causal inference.
-
-❓ Contact & Issues
-
-For questions, bug reports, or replication requests, please open an issue on this repository or email the author directly.
-
-Repository: https://github.com/yourusername/ph-gubernatorial-fiscal-rdd
+    Lumingkit, J. J. J. (2026). Temporal SHAP Drift: Diagnosing Regime Shifts in Philippine Gubernatorial Elections (1992–2022). Mindanao State University – Iligan Institute of Technology.
